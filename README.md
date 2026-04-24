@@ -1,12 +1,32 @@
-<!-- @wbx-modified copilot-a3f7·MTN | 2026-04-23 | Wk2 polish: tighter value prop, comparison table, fixed license link, contributor pointer | prev: copilot-c4a1@2026-04-23 -->
+<!-- @wbx-modified copilot-a3f7·MTN | 2026-04-24 | v0.1.0 launch polish: badges, tighter hero, social previews | prev: copilot-a3f7@2026-04-23 -->
+<div align="center">
+
 # Recall
 
-> **Open-source agent memory for the MCP era.**
-> Self-hosted. MIT-licensed core. One Docker image.
-> [recall.works](https://recall.works)
+**Open-source memory for AI agents. MCP-native. Self-hosted. One Docker image.**
 
-Your agent forgets every session. Recall fixes that — with a small, opinionated
-memory surface that any MCP-speaking agent (or any HTTP client) can drive.
+[![Tests](https://github.com/RecallWorks/Recall/actions/workflows/test.yml/badge.svg)](https://github.com/RecallWorks/Recall/actions/workflows/test.yml)
+[![Docker](https://github.com/RecallWorks/Recall/actions/workflows/docker.yml/badge.svg)](https://github.com/RecallWorks/Recall/actions/workflows/docker.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue?logo=python&logoColor=white)](pyproject.toml)
+[![MCP](https://img.shields.io/badge/MCP-compatible-7c3aed)](https://modelcontextprotocol.io)
+[![Container](https://img.shields.io/badge/ghcr.io-recallworks%2Frecall-2496ED?logo=docker&logoColor=white)](https://github.com/RecallWorks/Recall/pkgs/container/recall)
+
+</div>
+
+> Your agent forgets every session. Recall fixes that — with a small,
+> opinionated memory surface that any MCP-speaking agent (or any HTTP
+> client) can drive. Append-only, rebuildable, soft-delete by design.
+
+```text
+   ┌─────────────┐    MCP / HTTP    ┌──────────────────────────┐
+   │  AI agent   │ ───────────────► │  Recall (one container)  │
+   │  (Copilot,  │                  │   • 13 memory tools      │
+   │   Claude,   │  remember/recall │   • BYO embedder + LLM   │
+   │   Cursor,   │ ◄─────────────── │   • Append-only artifacts│
+   │   custom)   │                  │   • Auto-snapshot to disk│
+   └─────────────┘                  └──────────────────────────┘
+```
 
 ---
 
