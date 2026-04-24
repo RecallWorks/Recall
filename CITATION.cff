@@ -1,0 +1,26 @@
+# @wbx-modified copilot-a3f7·MTN | 2026-04-24 | citation metadata | prev: NEW
+cff-version: 1.2.0
+message: "If you use Recall in research or production, please cite it."
+title: "Recall: Open-source memory for AI agents"
+abstract: >
+  A self-hosted, MCP-native memory server for AI agents. Provides 13 tools for
+  remember/recall/reflect/checkpoint workflows, with bring-your-own embedder
+  and summarizer support. Append-only artifacts with auto-snapshot, soft-delete
+  by design.
+url: "https://github.com/RecallWorks/Recall"
+repository-code: "https://github.com/RecallWorks/Recall"
+license: MIT
+type: software
+version: "0.1.0"
+date-released: "2026-04-24"
+keywords:
+  - mcp
+  - model-context-protocol
+  - ai-agents
+  - memory
+  - llm
+  - vector-search
+  - chromadb
+  - self-hosted
+authors:
+  - name: "RecallWorks contributors"
