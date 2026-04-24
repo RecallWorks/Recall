@@ -1,4 +1,4 @@
-# @wbx-modified copilot-a3f7·MTN | 2026-04-24 | sync HTTP client matching real contract | prev: 0.1.0
+# @wbx-modified copilot-a3f7·MTN | 2026-04-24 | sync HTTP client (real contract) | prev: 0.1.0
 """Synchronous Recall client. Mirrors the server's real tool registry."""
 
 from __future__ import annotations

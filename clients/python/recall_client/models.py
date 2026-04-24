@@ -1,4 +1,4 @@
-# @wbx-modified copilot-a3f7·MTN | 2026-04-24 | response model matching real envelope | prev: typed Hits
+# @wbx-modified copilot-a3f7·MTN | 2026-04-24 | response model (real envelope) | prev: typed Hits
 """Response model for Recall tool calls.
 
 Every Recall tool returns the JSON envelope ``{"result": str, "tool": str, "by": str}``.

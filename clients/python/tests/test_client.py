@@ -1,4 +1,4 @@
-# @wbx-modified copilot-a3f7·MTN | 2026-04-24 | unit tests for real-contract SDK | prev: typed-Hit fiction
+# @wbx-modified copilot-a3f7·MTN | 2026-04-24 | unit tests for real-contract SDK | prev: Hit
 """Unit tests for the sync and async Recall clients (0.2.0 contract)."""
 
 from __future__ import annotations
