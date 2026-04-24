@@ -7,6 +7,8 @@
 
 [![Tests](https://github.com/RecallWorks/Recall/actions/workflows/test.yml/badge.svg)](https://github.com/RecallWorks/Recall/actions/workflows/test.yml)
 [![Docker](https://github.com/RecallWorks/Recall/actions/workflows/docker.yml/badge.svg)](https://github.com/RecallWorks/Recall/actions/workflows/docker.yml)
+[![PyPI](https://img.shields.io/pypi/v/recall-client?label=pypi%3A%20recall-client&logo=pypi&logoColor=white)](https://pypi.org/project/recall-client/)
+[![npm](https://img.shields.io/npm/v/@recallworks/recall-client?label=npm%3A%20%40recallworks%2Frecall-client&logo=npm&logoColor=white)](https://www.npmjs.com/package/@recallworks/recall-client)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue?logo=python&logoColor=white)](pyproject.toml)
 [![MCP](https://img.shields.io/badge/MCP-compatible-7c3aed)](https://modelcontextprotocol.io)
@@ -34,6 +36,8 @@
 
 ## Five-minute install
 
+**1. Run the server:**
+
 ```bash
 docker run -d --name recall \
   -p 8787:8787 \
@@ -42,11 +46,34 @@ docker run -d --name recall \
   ghcr.io/recallworks/recall:latest
 ```
 
+**2. Talk to it — pick your stack:**
+
 ```bash
-curl -H "Authorization: Bearer changeme" \
+# Raw HTTP (any language)
+curl -H "X-API-Key: changeme" \
      -H "Content-Type: application/json" \
-     -d '{"content":"first memory","tags":["hello"]}' \
+     -d '{"content":"first memory","tags":"hello"}' \
      http://localhost:8787/tool/remember
+```
+
+```python
+# Python
+pip install recall-client
+
+from recall_client import RecallClient
+with RecallClient("http://localhost:8787", api_key="changeme") as c:
+    c.remember("first memory", tags="hello")
+    print(c.recall("memory").result)
+```
+
+```ts
+// TypeScript / JavaScript (Node 18+, Bun, Deno, browser)
+npm install @recallworks/recall-client
+
+import { RecallClient } from "@recallworks/recall-client";
+const c = new RecallClient({ baseUrl: "http://localhost:8787", apiKey: "changeme" });
+await c.remember("first memory", { tags: "hello" });
+console.log((await c.recall("memory")).result);
 ```
 
 Full walkthrough: [docs/quickstart.md](docs/quickstart.md).
