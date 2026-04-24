@@ -1,0 +1,57 @@
+{
+  "name": "@recallworks/recall-client",
+  "version": "0.1.0",
+  "description": "Official TypeScript/JavaScript client for Recall — open-source memory for AI agents",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --dts --clean",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint src --ext .ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "mcp",
+    "memory",
+    "ai-agents",
+    "llm",
+    "vector-search",
+    "recall"
+  ],
+  "author": "RecallWorks contributors <maintainers@recall.works>",
+  "license": "MIT",
+  "homepage": "https://github.com/RecallWorks/Recall/tree/main/clients/typescript",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RecallWorks/Recall.git",
+    "directory": "clients/typescript"
+  },
+  "bugs": {
+    "url": "https://github.com/RecallWorks/Recall/issues"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "msw": "^2.4.0",
+    "tsup": "^8.3.0",
+    "typescript": "^5.6.0",
+    "vitest": "^2.1.0"
+  }
+}
