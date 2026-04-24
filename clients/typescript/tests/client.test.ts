@@ -1,5 +1,5 @@
-// @wbx-modified copilot-a3f7·MTN | 2026-04-24 | TS SDK tests | prev: NEW
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+// @wbx-modified copilot-a3f7·MTN | 2026-04-24 | TS SDK tests for real contract | prev: typed-Hit fiction
+import { beforeEach, describe, expect, it } from "vitest";
 import {
   RecallAuthError,
   RecallClient,
@@ -16,9 +16,7 @@ interface MockCall {
   init?: RequestInit;
 }
 
-function makeFetch(
-  responder: (call: MockCall) => Response | Promise<Response>,
-): { fn: typeof fetch; calls: MockCall[] } {
+function makeFetch(responder: (call: MockCall) => Response | Promise<Response>) {
   const calls: MockCall[] = [];
   const fn = (async (input: RequestInfo | URL, init?: RequestInit) => {
     const url = typeof input === "string" ? input : input.toString();
@@ -27,6 +25,12 @@ function makeFetch(
   }) as typeof fetch;
   return { fn, calls };
 }
+
+const envelope = (result: string, tool: string, by = "test-user") =>
+  new Response(JSON.stringify({ result, tool, by }), {
+    status: 200,
+    headers: { "Content-Type": "application/json" },
+  });
 
 let client: RecallClient;
 let fetchMock: ReturnType<typeof makeFetch>;
@@ -40,11 +44,7 @@ beforeEach(() => {
   fetchMock = undefined as unknown as ReturnType<typeof makeFetch>;
 });
 
-afterEach(() => {
-  // no global state to clean
-});
-
-describe("RecallClient", () => {
+describe("RecallClient (0.2.0)", () => {
   it("requires baseUrl and apiKey", () => {
     expect(() => new RecallClient({ baseUrl: "", apiKey: "x" })).toThrow();
     expect(() => new RecallClient({ baseUrl: "http://x", apiKey: "" })).toThrow();
@@ -55,50 +55,69 @@ describe("RecallClient", () => {
     expect(c.baseUrl).toBe("http://x");
   });
 
-  it("remember returns typed RememberResult", async () => {
-    build(() =>
-      new Response(JSON.stringify({ id: "abc123", artifact_path: "/d/abc.md" }), {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      }),
-    );
-    const result = await client.remember("hello", { tags: ["greeting"] });
-    expect(result.id).toBe("abc123");
-    expect(result.artifactPath).toBe("/d/abc.md");
+  it("remember returns ToolResponse envelope", async () => {
+    build(() => envelope("Stored 1 chunk", "remember"));
+    const r = await client.remember("hello", { tags: "greeting,ui" });
+    expect(r.tool).toBe("remember");
+    expect(r.result).toContain("Stored");
   });
 
-  it("recall returns typed Hit array", async () => {
-    build(() =>
-      new Response(
-        JSON.stringify({
-          hits: [
-            { id: "1", content: "first", score: 0.9, tags: ["a"] },
-            { id: "2", content: "second", score: 0.7 },
-          ],
-        }),
-        { status: 200 },
-      ),
-    );
-    const hits = await client.recall("query", { limit: 2 });
-    expect(hits).toHaveLength(2);
-    expect(hits[0].content).toBe("first");
-    expect(hits[0].score).toBe(0.9);
-    expect(hits[1].tags).toEqual([]);
+  it("remember sends string tags + default source", async () => {
+    build(() => envelope("ok", "remember"));
+    await client.remember("x", { tags: "a,b" });
+    const body = JSON.parse(String(fetchMock.calls[0].init?.body));
+    expect(body.tags).toBe("a,b");
+    expect(body.source).toBe("agent-observation");
   });
 
-  it("recall handles 'results' alias", async () => {
-    build(() =>
-      new Response(JSON.stringify({ results: [{ content: "x", score: 0.5 }] }), {
-        status: 200,
-      }),
-    );
-    const hits = await client.recall("q");
-    expect(hits).toHaveLength(1);
-    expect(hits[0].content).toBe("x");
+  it("recall uses n + type params", async () => {
+    build(() => envelope("# Hits", "recall"));
+    await client.recall("query", { n: 3 });
+    const body = JSON.parse(String(fetchMock.calls[0].init?.body));
+    expect(body.n).toBe(3);
+    expect(body.type).toBe("all");
+  });
+
+  it("forget takes source not id", async () => {
+    build(() => envelope("Archived 5", "forget"));
+    await client.forget("agent-observation");
+    const body = JSON.parse(String(fetchMock.calls[0].init?.body));
+    expect(body.source).toBe("agent-observation");
+  });
+
+  it("checkpoint maps camelCase to snake_case", async () => {
+    build(() => envelope("Checkpoint stored", "checkpoint"));
+    await client.checkpoint({
+      intent: "ship SDK",
+      established: "contract verified",
+      pursuing: "live smoke",
+      openQuestions: "none",
+      session: "a3f7",
+    });
+    const body = JSON.parse(String(fetchMock.calls[0].init?.body));
+    expect(body.intent).toBe("ship SDK");
+    expect(body.open_questions).toBe("none");
+    expect(body.session).toBe("a3f7");
+  });
+
+  it("reflect maps camelCase to snake_case", async () => {
+    build(() => envelope("ok", "reflect"));
+    await client.reflect({
+      domain: "d",
+      hypothesis: "h",
+      reasoning: "r",
+      result: "FAILED: x",
+      revisedBelief: "rb",
+      nextTime: "nt",
+    });
+    const body = JSON.parse(String(fetchMock.calls[0].init?.body));
+    expect(body.revised_belief).toBe("rb");
+    expect(body.next_time).toBe("nt");
+    expect(body.confidence).toBe(0.7);
   });
 
   it("auth error raises RecallAuthError", async () => {
-    build(() => new Response("bad key", { status: 401 }));
+    build(() => new Response(JSON.stringify({ error: "unauthorized" }), { status: 401 }));
     await expect(client.remember("x")).rejects.toBeInstanceOf(RecallAuthError);
   });
 
@@ -114,9 +133,7 @@ describe("RecallClient", () => {
   });
 
   it("explicit error payload raises RecallToolError", async () => {
-    build(() =>
-      new Response(JSON.stringify({ error: "invalid tag format" }), { status: 200 }),
-    );
+    build(() => new Response(JSON.stringify({ error: "bad arguments" }), { status: 400 }));
     await expect(client.remember("x")).rejects.toBeInstanceOf(RecallToolError);
   });
 
@@ -128,42 +145,30 @@ describe("RecallClient", () => {
   });
 
   it("callTool dispatches generic tools", async () => {
-    build(() => new Response(JSON.stringify({ chunks: 7 }), { status: 200 }));
-    const result = await client.callTool<{ chunks: number }>("index_file", {
-      path: "/data/notes.md",
-    });
-    expect(result.chunks).toBe(7);
+    build(() => envelope("Maintenance complete", "maintenance"));
+    const r = await client.callTool("maintenance", { pull: true });
+    expect(r.tool).toBe("maintenance");
   });
 
-  it("sends Authorization header", async () => {
-    build(() => new Response(JSON.stringify({ sessions: 0 }), { status: 200 }));
+  it("sends X-API-Key header", async () => {
+    build(() => envelope("# Pulse", "pulse"));
     await client.pulse();
     const headers = fetchMock.calls[0].init?.headers as Record<string, string>;
-    expect(headers.Authorization).toBe(`Bearer ${API_KEY}`);
+    expect(headers["X-API-Key"]).toBe(API_KEY);
   });
 
-  it("health hits GET /health", async () => {
-    build(({ url }) => {
+  it("health hits GET /health without auth header", async () => {
+    build(({ url, init }) => {
       expect(url).toBe(`${BASE_URL}/health`);
+      expect((init?.headers as Record<string, string> | undefined)?.["X-API-Key"]).toBeUndefined();
       return new Response(JSON.stringify({ status: "ok" }), { status: 200 });
     });
     const h = await client.health();
     expect(h.status).toBe("ok");
   });
 
-  it("checkpoint converts openQuestions camelCase", async () => {
-    build(({ init }) => {
-      const body = JSON.parse(String(init?.body));
-      expect(body.open_questions).toEqual(["q1", "q2"]);
-      return new Response(JSON.stringify({ ok: true }), { status: 200 });
-    });
-    await client.checkpoint({
-      session: "s1",
-      established: "e",
-      intent: "i",
-      pursuing: "p",
-      summary: "sum",
-      openQuestions: ["q1", "q2"],
-    });
+  it("404 unknown tool surfaces as RecallToolError", async () => {
+    build(() => new Response(JSON.stringify({ error: "unknown tool: bogus" }), { status: 404 }));
+    await expect(client.callTool("bogus")).rejects.toBeInstanceOf(RecallToolError);
   });
 });

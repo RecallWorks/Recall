@@ -1,28 +1,9 @@
-// @wbx-modified copilot-a3f7·MTN | 2026-04-24 | shared types | prev: NEW
-export interface Hit {
-  id?: string;
-  content: string;
-  score: number;
-  tags: string[];
-  metadata: Record<string, unknown>;
-}
-
-export interface RememberResult {
-  id: string;
-  artifactPath?: string;
-}
-
-export interface ToolResult {
-  ok: boolean;
-  data: Record<string, unknown>;
-  error?: string;
-}
-
-export interface CheckpointInput {
-  session: string;
-  established: string;
-  intent: string;
-  pursuing: string;
-  summary: string;
-  openQuestions?: string[];
+// @wbx-modified copilot-a3f7·MTN | 2026-04-24 | response envelope type | prev: typed Hits
+export interface ToolResponse {
+  /** Tool's return value, always a string from the server. */
+  result: string;
+  /** Echo of the tool name. */
+  tool: string;
+  /** Authenticated user identifier from the server's API-key map. */
+  by: string;
 }

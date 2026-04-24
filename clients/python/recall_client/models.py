@@ -1,63 +1,35 @@
-# @wbx-modified copilot-a3f7·MTN | 2026-04-24 | typed response models | prev: NEW
-"""Typed response models for Recall SDK.
+# @wbx-modified copilot-a3f7·MTN | 2026-04-24 | response model matching real envelope | prev: typed Hits
+"""Response model for Recall tool calls.
 
-Models are dataclasses (no Pydantic dep) for zero-friction install.
+Every Recall tool returns the JSON envelope ``{"result": str, "tool": str, "by": str}``.
 """
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Any
 
 
 @dataclass
-class Hit:
-    """A single recall search hit."""
+class ToolResponse:
+    """Wraps a Recall tool response.
 
-    content: str
-    score: float
-    tags: list[str] = field(default_factory=list)
-    metadata: dict[str, Any] = field(default_factory=dict)
-    id: str | None = None
+    ``result`` is always the tool's return value coerced to ``str`` by the
+    server. For ``recall``/``pulse``/``memory_stats`` it's human-readable
+    markdown. For ``remember``/``reflect``/etc it's a status line.
+    """
 
-    @classmethod
-    def from_dict(cls, d: dict[str, Any]) -> Hit:
-        return cls(
-            content=d.get("content", ""),
-            score=float(d.get("score", 0.0)),
-            tags=list(d.get("tags", [])),
-            metadata=dict(d.get("metadata", {})),
-            id=d.get("id"),
-        )
-
-
-@dataclass
-class RememberResult:
-    """Result of a remember() call."""
-
-    id: str
-    artifact_path: str | None = None
+    result: str
+    tool: str
+    by: str
 
     @classmethod
-    def from_dict(cls, d: dict[str, Any]) -> RememberResult:
+    def from_dict(cls, d: dict[str, Any]) -> ToolResponse:
         return cls(
-            id=d.get("id", ""),
-            artifact_path=d.get("artifact_path"),
+            result=str(d.get("result", "")),
+            tool=str(d.get("tool", "")),
+            by=str(d.get("by", "")),
         )
 
-
-@dataclass
-class ToolResult:
-    """Generic tool-invocation result for tools without a typed wrapper."""
-
-    ok: bool
-    data: dict[str, Any] = field(default_factory=dict)
-    error: str | None = None
-
-    @classmethod
-    def from_dict(cls, d: dict[str, Any]) -> ToolResult:
-        return cls(
-            ok=bool(d.get("ok", True)),
-            data=dict(d) if "ok" not in d else {k: v for k, v in d.items() if k != "ok"},
-            error=d.get("error"),
-        )
+    def __str__(self) -> str:  # pragma: no cover
+        return self.result

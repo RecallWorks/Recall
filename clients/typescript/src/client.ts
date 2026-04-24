@@ -1,32 +1,26 @@
-// @wbx-modified copilot-a3f7·MTN | 2026-04-24 | TS Recall client | prev: NEW
+// @wbx-modified copilot-a3f7·MTN | 2026-04-24 | TS Recall client matching real contract | prev: 0.1.0
 import {
   RecallAuthError,
   RecallConnectionError,
   RecallServerError,
   RecallToolError,
 } from "./errors.js";
-import type { CheckpointInput, Hit, RememberResult, ToolResult } from "./types.js";
+import type { ToolResponse } from "./types.js";
 
 export interface RecallClientOptions {
   baseUrl: string;
   apiKey: string;
   /** Per-request timeout in ms. Default 30000. */
   timeoutMs?: number;
-  /** Custom fetch (for testing or runtime polyfills). Defaults to global fetch. */
+  /** Custom fetch (for testing). Defaults to global fetch. */
   fetch?: typeof fetch;
 }
 
-interface RawHit {
-  id?: string;
-  content?: string;
-  score?: number;
-  tags?: string[];
-  metadata?: Record<string, unknown>;
-}
-
 /**
- * Isomorphic Recall client. Works in Node 18+, Bun, Deno, and modern browsers
- * (provided CORS is enabled on the Recall server).
+ * Isomorphic Recall client. Works in Node 18+, Bun, Deno, and modern
+ * browsers (provided CORS is enabled on the Recall server).
+ *
+ * Every tool returns `{ result: string, tool: string, by: string }`.
  */
 export class RecallClient {
   readonly baseUrl: string;
@@ -48,10 +42,7 @@ export class RecallClient {
 
   // ── core dispatch ──────────────────────────────────────────────────────
 
-  async callTool<T = Record<string, unknown>>(
-    name: string,
-    payload: Record<string, unknown> = {},
-  ): Promise<T> {
+  async callTool(name: string, args: Record<string, unknown> = {}): Promise<ToolResponse> {
     const url = `${this.baseUrl}/tool/${name}`;
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), this.timeoutMs);
@@ -61,11 +52,11 @@ export class RecallClient {
       response = await this.fetchImpl(url, {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${this.apiKey}`,
+          "X-API-Key": this.apiKey,
           "Content-Type": "application/json",
-          "User-Agent": "recall-client-ts/0.1.0",
+          "User-Agent": "recall-client-ts/0.2.0",
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(args),
         signal: controller.signal,
       });
     } catch (err) {
@@ -98,86 +89,160 @@ export class RecallClient {
       throw new RecallToolError(name, `Invalid JSON response: ${text}`);
     }
 
-    if (data && typeof data === "object" && "error" in data && (data as { error: unknown }).error) {
-      throw new RecallToolError(name, String((data as { error: unknown }).error));
+    if (!data || typeof data !== "object") {
+      throw new RecallToolError(name, `unexpected response shape: ${text}`);
     }
-    return data as T;
+    const obj = data as Record<string, unknown>;
+    if ("error" in obj && obj.error) {
+      throw new RecallToolError(name, String(obj.error));
+    }
+    return {
+      result: String(obj.result ?? ""),
+      tool: String(obj.tool ?? name),
+      by: String(obj.by ?? ""),
+    };
   }
 
-  // ── typed wrappers ─────────────────────────────────────────────────────
+  // ── typed wrappers (exact server signatures) ───────────────────────────
 
-  async remember(
+  remember(
     content: string,
-    options: { tags?: string[]; metadata?: Record<string, unknown> } = {},
-  ): Promise<RememberResult> {
-    const payload: Record<string, unknown> = { content };
-    if (options.tags?.length) payload.tags = options.tags;
-    if (options.metadata) payload.metadata = options.metadata;
-    const raw = await this.callTool<{ id?: string; artifact_path?: string }>(
-      "remember",
-      payload,
-    );
-    return { id: raw.id ?? "", artifactPath: raw.artifact_path };
+    options: { source?: string; tags?: string } = {},
+  ): Promise<ToolResponse> {
+    return this.callTool("remember", {
+      content,
+      source: options.source ?? "agent-observation",
+      tags: options.tags ?? "",
+    });
   }
 
-  async recall(
+  recall(
     query: string,
-    options: { limit?: number; tags?: string[] } = {},
-  ): Promise<Hit[]> {
-    const payload: Record<string, unknown> = { query, limit: options.limit ?? 5 };
-    if (options.tags?.length) payload.tags = options.tags;
-    const raw = await this.callTool<{ hits?: RawHit[]; results?: RawHit[] }>(
-      "recall",
-      payload,
-    );
-    const items = raw.hits ?? raw.results ?? [];
-    return items.map((h) => ({
-      id: h.id,
-      content: h.content ?? "",
-      score: h.score ?? 0,
-      tags: h.tags ?? [],
-      metadata: h.metadata ?? {},
-    }));
+    options: { n?: number; type?: string } = {},
+  ): Promise<ToolResponse> {
+    return this.callTool("recall", {
+      query,
+      n: options.n ?? 5,
+      type: options.type ?? "all",
+    });
   }
 
-  async reflect(summary: string, tags?: string[]): Promise<ToolResult> {
-    const payload: Record<string, unknown> = { summary };
-    if (tags?.length) payload.tags = tags;
-    return this.toToolResult(await this.callTool("reflect", payload));
+  reflect(args: {
+    domain: string;
+    hypothesis: string;
+    reasoning: string;
+    result: string;
+    revisedBelief: string;
+    nextTime: string;
+    confidence?: number;
+    session?: string;
+  }): Promise<ToolResponse> {
+    return this.callTool("reflect", {
+      domain: args.domain,
+      hypothesis: args.hypothesis,
+      reasoning: args.reasoning,
+      result: args.result,
+      revised_belief: args.revisedBelief,
+      next_time: args.nextTime,
+      confidence: args.confidence ?? 0.7,
+      session: args.session ?? "",
+    });
   }
 
-  async checkpoint(input: CheckpointInput): Promise<ToolResult> {
-    return this.toToolResult(
-      await this.callTool("checkpoint", {
-        session: input.session,
-        established: input.established,
-        intent: input.intent,
-        pursuing: input.pursuing,
-        summary: input.summary,
-        open_questions: input.openQuestions ?? [],
-      }),
-    );
+  antiPattern(args: {
+    domain: string;
+    temptation: string;
+    whyWrong: string;
+    signature: string;
+    instead: string;
+    session?: string;
+  }): Promise<ToolResponse> {
+    return this.callTool("anti_pattern", {
+      domain: args.domain,
+      temptation: args.temptation,
+      why_wrong: args.whyWrong,
+      signature: args.signature,
+      instead: args.instead,
+      session: args.session ?? "",
+    });
   }
 
-  async pulse(): Promise<Record<string, unknown>> {
-    return this.callTool("pulse");
+  sessionClose(args: {
+    sessionId: string;
+    reasoningChanged: string;
+    doDifferently: string;
+    stillUncertain: string;
+    temptations: string;
+  }): Promise<ToolResponse> {
+    return this.callTool("session_close", {
+      session_id: args.sessionId,
+      reasoning_changed: args.reasoningChanged,
+      do_differently: args.doDifferently,
+      still_uncertain: args.stillUncertain,
+      temptations: args.temptations,
+    });
   }
 
-  async memoryStats(): Promise<Record<string, unknown>> {
+  checkpoint(args: {
+    intent: string;
+    established: string;
+    pursuing: string;
+    openQuestions: string;
+    session?: string;
+    domain?: string;
+  }): Promise<ToolResponse> {
+    return this.callTool("checkpoint", {
+      intent: args.intent,
+      established: args.established,
+      pursuing: args.pursuing,
+      open_questions: args.openQuestions,
+      session: args.session ?? "",
+      domain: args.domain ?? "",
+    });
+  }
+
+  pulse(options: { domain?: string; includeReasoning?: boolean } = {}): Promise<ToolResponse> {
+    return this.callTool("pulse", {
+      domain: options.domain ?? "",
+      include_reasoning: options.includeReasoning ?? true,
+    });
+  }
+
+  memoryStats(): Promise<ToolResponse> {
     return this.callTool("memory_stats");
   }
 
-  async forget(id: string, source = "user-request"): Promise<ToolResult> {
-    return this.toToolResult(await this.callTool("forget", { id, source }));
+  /**
+   * Soft-archive all chunks matching `source`. NOTE: takes a source label,
+   * not a chunk id. Server marks chunks `archived=true`.
+   */
+  forget(source: string): Promise<ToolResponse> {
+    return this.callTool("forget", { source });
   }
+
+  reindex(path = ""): Promise<ToolResponse> {
+    return this.callTool("reindex", { path });
+  }
+
+  indexFile(filepath: string): Promise<ToolResponse> {
+    return this.callTool("index_file", { filepath });
+  }
+
+  maintenance(pull = true): Promise<ToolResponse> {
+    return this.callTool("maintenance", { pull });
+  }
+
+  snapshotIndex(): Promise<ToolResponse> {
+    return this.callTool("snapshot_index");
+  }
+
+  // ── plain HTTP endpoint (no auth) ──────────────────────────────────────
 
   async health(): Promise<Record<string, unknown>> {
     const url = `${this.baseUrl}/health`;
     let response: Response;
     try {
-      response = await this.fetchImpl(url, {
-        headers: { Authorization: `Bearer ${this.apiKey}` },
-      });
+      response = await this.fetchImpl(url);
     } catch (err) {
       throw new RecallConnectionError(
         `Cannot reach health: ${err instanceof Error ? err.message : String(err)}`,
@@ -190,15 +255,5 @@ export class RecallClient {
       );
     }
     return (await response.json()) as Record<string, unknown>;
-  }
-
-  private toToolResult(raw: Record<string, unknown>): ToolResult {
-    const ok = "ok" in raw ? Boolean(raw.ok) : true;
-    const error = typeof raw.error === "string" ? raw.error : undefined;
-    const data: Record<string, unknown> = {};
-    for (const [k, v] of Object.entries(raw)) {
-      if (k !== "ok" && k !== "error") data[k] = v;
-    }
-    return { ok, data, error };
   }
 }

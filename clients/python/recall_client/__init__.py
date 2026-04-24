@@ -1,23 +1,19 @@
-# @wbx-modified copilot-a3f7·MTN | 2026-04-24 | Python SDK package init | prev: NEW
+# @wbx-modified copilot-a3f7·MTN | 2026-04-24 | rewrite to match real server contract | prev: 0.1.0
 """recall_client — official Python SDK for Recall memory server.
 
-Quick start:
+All Recall tools return ``{"result": str, "tool": str, "by": str}`` over HTTP.
+This SDK exposes:
+
+- ``RecallClient`` / ``AsyncRecallClient`` with one typed wrapper per registered tool.
+- Generic ``call_tool(name, **kwargs) -> ToolResponse`` for anything new.
+
+Quick start::
 
     from recall_client import RecallClient
 
-    client = RecallClient("http://localhost:8787", api_key="changeme")
-    client.remember("first memory", tags=["hello"])
-    hits = client.recall("hello", limit=5)
-    for h in hits:
-        print(h.content, h.score)
-
-Async usage:
-
-    from recall_client import AsyncRecallClient
-
-    async with AsyncRecallClient("http://localhost:8787", api_key="changeme") as c:
-        await c.remember("async memory")
-        hits = await c.recall("memory")
+    with RecallClient("http://localhost:8787", api_key="changeme") as c:
+        c.remember("first memory", tags="hello,greeting")
+        print(c.recall("hello", n=3).result)
 """
 
 from .async_client import AsyncRecallClient
@@ -29,18 +25,16 @@ from .exceptions import (
     RecallServerError,
     RecallToolError,
 )
-from .models import Hit, RememberResult, ToolResult
+from .models import ToolResponse
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 __all__ = [
     "AsyncRecallClient",
-    "Hit",
     "RecallAuthError",
     "RecallClient",
     "RecallConnectionError",
     "RecallError",
     "RecallServerError",
     "RecallToolError",
-    "RememberResult",
-    "ToolResult",
+    "ToolResponse",
 ]
