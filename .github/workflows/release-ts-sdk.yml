@@ -1,0 +1,53 @@
+# @wbx-modified copilot-a3f7·MTN | 2026-04-24 | tag-triggered npm publish
+# Trigger: push a tag matching `ts-sdk-v*` (e.g. `ts-sdk-v0.1.0`).
+# Requires repo secret `NPM_TOKEN` (npm automation token with publish scope on
+# the `@recallworks` org).
+name: release-ts-sdk
+
+on:
+  push:
+    tags:
+      - "ts-sdk-v*"
+
+permissions:
+  contents: read
+  id-token: write   # for npm provenance
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: clients/typescript
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Install
+        run: npm install --no-audit --no-fund
+
+      - name: Verify version matches tag
+        run: |
+          TAG="${GITHUB_REF_NAME#ts-sdk-v}"
+          PKG=$(node -p "require('./package.json').version")
+          echo "tag=$TAG  pkg=$PKG"
+          test "$TAG" = "$PKG"
+
+      - name: Typecheck
+        run: npx tsc --noEmit
+
+      - name: Test
+        run: npx vitest run --reporter=basic
+
+      - name: Build
+        run: npx tsup src/index.ts --format esm,cjs --dts --clean
+
+      - name: Publish to npm (with provenance)
+        run: npm publish --access public --provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
