@@ -15,11 +15,14 @@ pip install recall-client
 from recall_client import RecallClient
 
 with RecallClient("http://localhost:8787", api_key="changeme") as client:
-    client.remember("the user prefers dark mode", tags=["pref", "ui"])
-    hits = client.recall("user preferences", limit=5)
-    for h in hits:
-        print(f"{h.score:.3f}  {h.content}")
+    print(client.health())  # {"status": "ok", "chunks": ..., "ready": True}
+
+    client.remember("the user prefers dark mode", tags="pref,ui")
+    res = client.recall("user preferences", n=5)
+    print(res.result)  # markdown listing of hits
 ```
+
+Every tool returns a `ToolResponse` envelope with three string fields: `result`, `tool`, `by`. The server formats results as markdown — parse `result` if you need structured fields.
 
 ## Async
 
@@ -29,9 +32,9 @@ from recall_client import AsyncRecallClient
 
 async def main():
     async with AsyncRecallClient("http://localhost:8787", api_key="changeme") as c:
-        await c.remember("async memory works", tags=["async"])
-        hits = await c.recall("memory")
-        print(hits)
+        await c.remember("async memory works", tags="async")
+        res = await c.recall("memory")
+        print(res.result)
 
 asyncio.run(main())
 ```
@@ -51,12 +54,14 @@ The client exposes typed wrappers for the high-traffic tools:
 | `forget()` | `forget` |
 | `health()` | `GET /health` |
 
-For any tool without a typed wrapper (e.g. `index_file`, `reindex`, `snapshot_index`, `anti_pattern`, `session_close`, `maintenance`), use the generic dispatch:
+All 13 server tools have typed wrappers (`remember`, `recall`, `reflect`, `anti_pattern`, `session_close`, `checkpoint`, `pulse`, `memory_stats`, `forget`, `reindex`, `index_file`, `maintenance`, `snapshot_index`). For any custom or future tool, use the generic dispatch:
 
 ```python
-client.call_tool("index_file", path="/data/notes.md")
-client.call_tool("anti_pattern", pattern="don't auto-merge without CI")
+client.call_tool("index_file", filepath="/data/notes.md")
+client.call_tool("forget", source="agent-observation")
 ```
+
+> Note: `forget()` takes a `source` label and **soft-archives** every chunk with that source. It does not delete a single chunk by id.
 
 ## Errors
 

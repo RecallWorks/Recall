@@ -25,15 +25,15 @@ const client = new RecallClient({
   apiKey: "changeme",
 });
 
-await client.remember("the user prefers dark mode", {
-  tags: ["pref", "ui"],
-});
+console.log(await client.health()); // { status: "ok", chunks: ..., ready: true }
 
-const hits = await client.recall("user preferences", { limit: 5 });
-for (const h of hits) {
-  console.log(`${h.score.toFixed(3)}  ${h.content}`);
-}
+await client.remember("the user prefers dark mode", { tags: "pref,ui" });
+
+const res = await client.recall("user preferences", { n: 5 });
+console.log(res.result); // markdown listing of hits
 ```
+
+Every tool returns a `ToolResponse` envelope with three string fields: `result`, `tool`, `by`. The server formats results as markdown — parse `result` if you need structured fields.
 
 ## Tool surface
 
@@ -50,12 +50,14 @@ Typed wrappers for the high-traffic tools:
 | `forget()`        | `forget`         |
 | `health()`        | `GET /health`    |
 
-For tools without a typed wrapper, use the generic dispatch:
+All 13 server tools have typed wrappers (`remember`, `recall`, `reflect`, `antiPattern`, `sessionClose`, `checkpoint`, `pulse`, `memoryStats`, `forget`, `reindex`, `indexFile`, `maintenance`, `snapshotIndex`). For any custom or future tool, use the generic dispatch:
 
 ```ts
-await client.callTool("index_file", { path: "/data/notes.md" });
-await client.callTool("anti_pattern", { pattern: "don't auto-merge without CI" });
+await client.callTool("index_file", { filepath: "/data/notes.md" });
+await client.callTool("forget", { source: "agent-observation" });
 ```
+
+> Note: `forget()` takes a `source` label and **soft-archives** every chunk with that source. It does not delete a single chunk by id.
 
 ## Errors
 
