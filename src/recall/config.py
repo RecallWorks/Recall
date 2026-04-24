@@ -4,6 +4,7 @@
 Defaults are neutral (./data/...) so a fresh `docker run` works without
 Azure-specific paths. Operators override via env vars or .env file.
 """
+
 from __future__ import annotations
 
 import json
@@ -61,7 +62,7 @@ class Config:
     checkpoint_ring_max: int = 10
 
     @classmethod
-    def from_env(cls) -> "Config":
+    def from_env(cls) -> Config:
         """Build a Config from environment variables. Raises RuntimeError if no API key set."""
         c = cls()
 
@@ -79,9 +80,7 @@ class Config:
             c.api_keys = {api_key: "admin"}
             log.info("Using single API_KEY (single-user mode)")
         if not c.api_keys:
-            raise RuntimeError(
-                "API_KEY or API_KEYS environment variable is required"
-            )
+            raise RuntimeError("API_KEY or API_KEYS environment variable is required")
 
         # Paths
         c.store_dir = os.environ.get("STORE_DIR", c.store_dir)
@@ -94,10 +93,14 @@ class Config:
         c.git_token = os.environ.get("GIT_TOKEN", "")
         c.repo_dir = os.environ.get("REPO_DIR", c.repo_dir)
         c.index_dirs = [
-            d.strip() for d in os.environ.get("INDEX_DIRS", ",".join(c.index_dirs)).split(",") if d.strip()
+            d.strip()
+            for d in os.environ.get("INDEX_DIRS", ",".join(c.index_dirs)).split(",")
+            if d.strip()
         ]
         c.file_extensions = [
-            e.strip() for e in os.environ.get("FILE_EXTENSIONS", ",".join(c.file_extensions)).split(",") if e.strip()
+            e.strip()
+            for e in os.environ.get("FILE_EXTENSIONS", ",".join(c.file_extensions)).split(",")
+            if e.strip()
         ]
 
         # Tunables

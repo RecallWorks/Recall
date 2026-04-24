@@ -1,13 +1,21 @@
 # @wbx-modified copilot-c4a1·MTN | 2026-04-23 | recall tool — semantic search across indexed memory | prev: NEW
 """recall — semantic search across all indexed memory."""
+
 from __future__ import annotations
 
 from ..config import Config
 from ..state import compact_checkpoint, staleness_check
 from ..store import get_store
 
-
-_VALID_TYPES = {"all", "reasoning", "anti_pattern", "reflection", "observation", "document", "checkpoint"}
+_VALID_TYPES = {
+    "all",
+    "reasoning",
+    "anti_pattern",
+    "reflection",
+    "observation",
+    "document",
+    "checkpoint",
+}
 
 
 def recall(query: str, n: int = 5, type: str = "all", config: Config | None = None) -> str:
@@ -34,13 +42,13 @@ def recall(query: str, n: int = 5, type: str = "all", config: Config | None = No
     docs = results["documents"][0] if results.get("documents") else []
     metas = results["metadatas"][0] if results.get("metadatas") else []
     dists = results["distances"][0] if results.get("distances") else [None] * len(docs)
-    for i, (doc, meta) in enumerate(zip(docs, metas)):
+    for i, (doc, meta) in enumerate(zip(docs, metas, strict=False)):
         source = meta.get("source", "unknown")
         art_type = meta.get("type", "document")
         domain = meta.get("domain", "")
         confidence = meta.get("confidence")
         dist = dists[i] if i < len(dists) else None
-        header = [f"Result {i+1}"]
+        header = [f"Result {i + 1}"]
         if dist is not None:
             header.append(f"distance: {dist:.3f}")
         header.append(f"type: {art_type}")

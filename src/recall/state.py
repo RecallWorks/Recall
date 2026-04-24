@@ -9,6 +9,7 @@ Holds:
 This module is intentionally tiny so tools can `from recall.state import S`
 without circular imports.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -55,7 +56,6 @@ def compact_checkpoint(store) -> str:
         )
         if cp["documents"] and cp["documents"][0]:
             return (
-                f"\n\n\U0001f4cd ACTIVE CONTEXT (from persistent store):\n"
-                f"{cp['documents'][0][0]}\n"
+                f"\n\n\U0001f4cd ACTIVE CONTEXT (from persistent store):\n{cp['documents'][0][0]}\n"
             )
     return ""

@@ -5,6 +5,7 @@ Why: ChromaDB lives on ephemeral local disk. Source-of-truth artifacts
 (observations, reasoning, anti-patterns, checkpoints, reflections) must
 survive container restarts. They're written here and re-indexed on startup.
 """
+
 from __future__ import annotations
 
 import logging

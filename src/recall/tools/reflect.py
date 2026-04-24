@@ -3,6 +3,7 @@
 
 All three require a hex agent-id session for traceability.
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -32,8 +33,14 @@ def _config() -> Config:
 
 
 def reflect(
-    domain: str, hypothesis: str, reasoning: str, result: str,
-    revised_belief: str, next_time: str, confidence: float = 0.7, session: str = "",
+    domain: str,
+    hypothesis: str,
+    reasoning: str,
+    result: str,
+    revised_belief: str,
+    next_time: str,
+    confidence: float = 0.7,
+    session: str = "",
 ) -> str:
     """Store a structured reasoning artifact.
 
@@ -63,13 +70,22 @@ def reflect(
         f"reasoning:{domain}:{datetime.now().isoformat()}".encode()
     ).hexdigest()[:16]
     metadata = {
-        "source": f"reasoning/{domain}", "chunk_index": 0,
-        "indexed_at": datetime.now().isoformat(), "type": "reasoning",
-        "domain": domain, "result": result.split()[0] if result else "UNKNOWN",
-        "confidence": confidence, "session": session,
+        "source": f"reasoning/{domain}",
+        "chunk_index": 0,
+        "indexed_at": datetime.now().isoformat(),
+        "type": "reasoning",
+        "domain": domain,
+        "result": result.split()[0] if result else "UNKNOWN",
+        "confidence": confidence,
+        "session": session,
     }
     store.upsert(ids=[chunk_id], documents=[document], metadatas=[metadata])
-    persist_artifact(cfg.artifacts_dir, "reasoning", f"{domain}_{chunk_id}", f"# Reasoning: {domain}\n\n{document}")
+    persist_artifact(
+        cfg.artifacts_dir,
+        "reasoning",
+        f"{domain}_{chunk_id}",
+        f"# Reasoning: {domain}\n\n{document}",
+    )
     maybe_auto_snapshot(cfg.store_dir, cfg.prebuilt_dir, cfg.auto_snapshot_every)
     return (
         f"Reasoning stored. Domain: {domain}, Result: {metadata['result']}, "
@@ -78,8 +94,12 @@ def reflect(
 
 
 def anti_pattern(
-    domain: str, temptation: str, why_wrong: str, signature: str,
-    instead: str, session: str = "",
+    domain: str,
+    temptation: str,
+    why_wrong: str,
+    signature: str,
+    instead: str,
+    session: str = "",
 ) -> str:
     """Store a temptation signature -- a pattern that LOOKS right but isn't.
 
@@ -105,19 +125,32 @@ def anti_pattern(
         f"anti_pattern:{domain}:{datetime.now().isoformat()}".encode()
     ).hexdigest()[:16]
     metadata = {
-        "source": f"anti-pattern/{domain}", "chunk_index": 0,
-        "indexed_at": datetime.now().isoformat(), "type": "anti_pattern",
-        "domain": domain, "session": session,
+        "source": f"anti-pattern/{domain}",
+        "chunk_index": 0,
+        "indexed_at": datetime.now().isoformat(),
+        "type": "anti_pattern",
+        "domain": domain,
+        "session": session,
     }
     store.upsert(ids=[chunk_id], documents=[document], metadatas=[metadata])
-    persist_artifact(cfg.artifacts_dir, "anti_patterns", f"{domain}_{chunk_id}", f"# Anti-Pattern: {domain}\n\n{document}")
+    persist_artifact(
+        cfg.artifacts_dir,
+        "anti_patterns",
+        f"{domain}_{chunk_id}",
+        f"# Anti-Pattern: {domain}\n\n{document}",
+    )
     maybe_auto_snapshot(cfg.store_dir, cfg.prebuilt_dir, cfg.auto_snapshot_every)
-    return f"Anti-pattern stored. Domain: {domain}, ID: {chunk_id}" + staleness_check(cfg.stale_minutes)
+    return f"Anti-pattern stored. Domain: {domain}, ID: {chunk_id}" + staleness_check(
+        cfg.stale_minutes
+    )
 
 
 def session_close(
-    session_id: str, reasoning_changed: str, do_differently: str,
-    still_uncertain: str, temptations: str,
+    session_id: str,
+    reasoning_changed: str,
+    do_differently: str,
+    still_uncertain: str,
+    temptations: str,
 ) -> str:
     """End-of-session reflection.
 
@@ -148,9 +181,7 @@ def session_close(
     else:
         try:
             condensed = summarizer.summarize(raw_document, max_words=180)
-            document = (
-                f"SESSION: {session_id}\nSUMMARY ({summarizer.name}): {condensed}"
-            )
+            document = f"SESSION: {session_id}\nSUMMARY ({summarizer.name}): {condensed}"
             summarizer_used = summarizer.name
         except Exception:
             # Fall back to raw on any LLM error — never lose a reflection.
@@ -161,14 +192,19 @@ def session_close(
         f"reflection:{session_id}:{datetime.now().isoformat()}".encode()
     ).hexdigest()[:16]
     metadata = {
-        "source": f"reflection/{session_id}", "chunk_index": 0,
-        "indexed_at": datetime.now().isoformat(), "type": "reflection",
-        "domain": "session", "session": session_id,
+        "source": f"reflection/{session_id}",
+        "chunk_index": 0,
+        "indexed_at": datetime.now().isoformat(),
+        "type": "reflection",
+        "domain": "session",
+        "session": session_id,
         "summarizer": summarizer_used,
     }
     store.upsert(ids=[chunk_id], documents=[document], metadatas=[metadata])
     persist_artifact(
-        cfg.artifacts_dir, "reflections", f"{session_id}_{chunk_id}",
+        cfg.artifacts_dir,
+        "reflections",
+        f"{session_id}_{chunk_id}",
         f"# Session Reflection: {session_id}\n\n{raw_document}",
     )
     maybe_auto_snapshot(cfg.store_dir, cfg.prebuilt_dir, cfg.auto_snapshot_every)

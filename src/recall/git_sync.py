@@ -5,6 +5,7 @@ Single-tenant deployments often want the brain to index a separate docs
 repo on every boot. This module is a thin wrapper around `git clone --depth 1`
 and `git pull --ff-only`. If GIT_REPO_URL is unset, all calls are no-ops.
 """
+
 from __future__ import annotations
 
 import logging
@@ -38,7 +39,8 @@ def git_sync(repo_url: str, repo_dir: str, token: str = "") -> None:
         proc = subprocess.run(
             ["git", "pull", "--ff-only"],
             cwd=str(repo_path),
-            capture_output=True, text=True,
+            capture_output=True,
+            text=True,
             timeout=300,
         )
         if proc.returncode == 0:
@@ -53,7 +55,8 @@ def git_sync(repo_url: str, repo_dir: str, token: str = "") -> None:
     log.info("Cloning %s into %s", repo_url, repo_dir)
     proc = subprocess.run(
         ["git", "clone", "--depth", "1", clone_url, str(repo_path)],
-        capture_output=True, text=True,
+        capture_output=True,
+        text=True,
         timeout=300,
     )
     if proc.returncode != 0:

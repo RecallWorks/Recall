@@ -4,6 +4,7 @@
 Used by browser-side UIs and any non-MCP client. Auth is enforced by the
 ApiKeyAuthMiddleware applied at the app level.
 """
+
 from __future__ import annotations
 
 import logging
@@ -22,15 +23,21 @@ async def health_handler(request: Request) -> JSONResponse:
     if not is_ready():
         return JSONResponse({"status": "starting", "ready": False}, status_code=200)
     from ..store import get_store
+
     chunks = get_store().count()
     if cfg.min_expected_chunks > 0 and chunks < cfg.min_expected_chunks:
         return JSONResponse(
-            {"status": "degraded", "chunks": chunks,
-             "min_expected": cfg.min_expected_chunks, "ready": True},
+            {
+                "status": "degraded",
+                "chunks": chunks,
+                "min_expected": cfg.min_expected_chunks,
+                "ready": True,
+            },
             status_code=503,
         )
-    return JSONResponse({"status": "ok", "chunks": chunks, "ready": True,
-                         "min_expected": cfg.min_expected_chunks})
+    return JSONResponse(
+        {"status": "ok", "chunks": chunks, "ready": True, "min_expected": cfg.min_expected_chunks}
+    )
 
 
 async def tool_handler(request: Request) -> JSONResponse:
@@ -39,8 +46,7 @@ async def tool_handler(request: Request) -> JSONResponse:
     fn = TOOL_REGISTRY.get(name)
     if fn is None:
         return JSONResponse(
-            {"error": f"unknown tool: {name}",
-             "available": sorted(TOOL_REGISTRY.keys())},
+            {"error": f"unknown tool: {name}", "available": sorted(TOOL_REGISTRY.keys())},
             status_code=404,
         )
     if not is_ready() and name != "memory_stats":
@@ -55,7 +61,9 @@ async def tool_handler(request: Request) -> JSONResponse:
     except Exception:
         args = {}
     log.info(
-        "HTTP tool: %s by %s args=%s", name, user,
+        "HTTP tool: %s by %s args=%s",
+        name,
+        user,
         {k: (v if isinstance(v, (int, float, bool)) else "<...>") for k, v in args.items()},
     )
     try:

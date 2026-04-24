@@ -12,6 +12,7 @@ Protocol plus three reference implementations:
 Operators select an implementation via env vars (see ``Config``). The store
 constructor accepts the resulting Embedder; tools never touch this module.
 """
+
 from __future__ import annotations
 
 import logging
@@ -58,9 +59,7 @@ class OpenAIEmbedder:
         try:
             from openai import OpenAI  # type: ignore[import-not-found]
         except ImportError as e:
-            raise RuntimeError(
-                "RECALL_EMBEDDER=openai requires `pip install openai`"
-            ) from e
+            raise RuntimeError("RECALL_EMBEDDER=openai requires `pip install openai`") from e
         kwargs: dict = {"api_key": api_key}
         if base_url:
             kwargs["base_url"] = base_url
@@ -86,9 +85,7 @@ class OllamaEmbedder:
         try:
             import httpx  # type: ignore[import-not-found]
         except ImportError as e:
-            raise RuntimeError(
-                "RECALL_EMBEDDER=ollama requires `pip install httpx`"
-            ) from e
+            raise RuntimeError("RECALL_EMBEDDER=ollama requires `pip install httpx`") from e
         self._httpx = httpx
         self._model = model
         self._endpoint = endpoint.rstrip("/")
@@ -123,6 +120,4 @@ def make_embedder_from_env() -> Embedder:
             model=os.environ.get("RECALL_EMBED_MODEL", "nomic-embed-text"),
             endpoint=os.environ.get("RECALL_EMBED_ENDPOINT", "http://localhost:11434"),
         )
-    raise RuntimeError(
-        f"Unknown RECALL_EMBEDDER='{kind}'. Use one of: default, openai, ollama."
-    )
+    raise RuntimeError(f"Unknown RECALL_EMBEDDER='{kind}'. Use one of: default, openai, ollama.")

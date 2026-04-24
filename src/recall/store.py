@@ -9,6 +9,7 @@ The Chroma implementation accepts an optional ``Embedder`` so customers can
 plug in OpenAI, Azure-OpenAI, Ollama, or any other embedding backend without
 shipping content to a public-cloud default.
 """
+
 from __future__ import annotations
 
 import logging
@@ -26,7 +27,9 @@ class Store(Protocol):
     def count(self) -> int: ...
     def upsert(self, ids: list[str], documents: list[str], metadatas: list[dict]) -> None: ...
     def query(self, query_texts: list[str], n_results: int, where: dict | None = None) -> dict: ...
-    def get(self, where: dict | None = None, limit: int = 100, include: list[str] | None = None) -> dict: ...
+    def get(
+        self, where: dict | None = None, limit: int = 100, include: list[str] | None = None
+    ) -> dict: ...
     def delete(self, ids: list[str]) -> None: ...
 
 
@@ -45,7 +48,9 @@ class ChromaStore:
     """ChromaDB-backed implementation of Store."""
 
     def __init__(
-        self, path: str, collection_name: str,
+        self,
+        path: str,
+        collection_name: str,
         embedder: Embedder | None = None,
     ) -> None:
         # Lazy import: chromadb pulls in onnxruntime + embedding model (slow cold start).
@@ -86,7 +91,9 @@ class ChromaStore:
             kwargs["where"] = where
         return self._collection.query(**kwargs)
 
-    def get(self, where: dict | None = None, limit: int = 100, include: list[str] | None = None) -> dict:
+    def get(
+        self, where: dict | None = None, limit: int = 100, include: list[str] | None = None
+    ) -> dict:
         kwargs: dict[str, Any] = {"limit": limit}
         if where:
             kwargs["where"] = where
@@ -103,7 +110,9 @@ _store: Store | None = None
 
 
 def init_store(
-    path: str, collection_name: str, embedder: Embedder | None = None,
+    path: str,
+    collection_name: str,
+    embedder: Embedder | None = None,
 ) -> Store:
     global _store
     _store = ChromaStore(path=path, collection_name=collection_name, embedder=embedder)

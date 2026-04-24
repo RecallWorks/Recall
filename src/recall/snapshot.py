@@ -5,6 +5,7 @@ The store lives on ephemeral local disk; without snapshots, every container
 restart loses chunks added since the last CI-built prebuilt index. The boot
 script copies prebuilt_dir -> store_dir so restarts come up whole.
 """
+
 from __future__ import annotations
 
 import logging
@@ -65,7 +66,8 @@ def maybe_auto_snapshot(store_dir: str, prebuilt_dir: str, every: int) -> None:
         result = snapshot(store_dir, prebuilt_dir)
         log.info(
             "Auto-snapshot fired (after %d writes): %s",
-            S.writes_since_snapshot, result,
+            S.writes_since_snapshot,
+            result,
         )
         S.writes_since_snapshot = 0
     except Exception as e:

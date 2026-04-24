@@ -1,14 +1,14 @@
 # @wbx-modified copilot-c4a1·MTN | 2026-04-23 | Recall Wk1 Day 1 — write-tool tests against in-memory FakeStore | prev: NEW
 import pytest
+from fakestore import install
 
 from recall.config import Config
 from recall.state import S
-from recall.tools import remember as remember_mod
-from recall.tools import reflect as reflect_mod
 from recall.tools import checkpoint as checkpoint_mod
-from recall.tools import stats as stats_mod
 from recall.tools import recall as recall_mod
-from fakestore import install
+from recall.tools import reflect as reflect_mod
+from recall.tools import remember as remember_mod
+from recall.tools import stats as stats_mod
 
 
 @pytest.fixture
@@ -44,8 +44,14 @@ def test_remember_writes_chunk(store):
 
 def test_reflect_requires_hex_session(store):
     out = reflect_mod.reflect(
-        domain="d", hypothesis="h", reasoning="r", result="SUCCESS x",
-        revised_belief="rb", next_time="nt", confidence=0.5, session="",
+        domain="d",
+        hypothesis="h",
+        reasoning="r",
+        result="SUCCESS x",
+        revised_belief="rb",
+        next_time="nt",
+        confidence=0.5,
+        session="",
     )
     assert "ERROR" in out
     assert store.count() == 0
@@ -53,8 +59,14 @@ def test_reflect_requires_hex_session(store):
 
 def test_reflect_writes_with_hex(store):
     out = reflect_mod.reflect(
-        domain="d", hypothesis="h", reasoning="r", result="SUCCESS x",
-        revised_belief="rb", next_time="nt", confidence=0.5, session="c4a1",
+        domain="d",
+        hypothesis="h",
+        reasoning="r",
+        result="SUCCESS x",
+        revised_belief="rb",
+        next_time="nt",
+        confidence=0.5,
+        session="c4a1",
     )
     assert "Reasoning stored" in out
     assert store.count() == 1
@@ -65,8 +77,12 @@ def test_reflect_writes_with_hex(store):
 
 def test_checkpoint_updates_ring_and_timestamp(store):
     out = checkpoint_mod.checkpoint(
-        intent="i", established="e", pursuing="p", open_questions="q",
-        session="c4a1", domain="dev",
+        intent="i",
+        established="e",
+        pursuing="p",
+        open_questions="q",
+        session="c4a1",
+        domain="dev",
     )
     assert "Checkpoint stored" in out
     assert len(S.checkpoint_ring) == 1
@@ -75,8 +91,12 @@ def test_checkpoint_updates_ring_and_timestamp(store):
 
 def test_anti_pattern_writes(store):
     out = reflect_mod.anti_pattern(
-        domain="d", temptation="t", why_wrong="w", signature="s",
-        instead="i", session="c4a1",
+        domain="d",
+        temptation="t",
+        why_wrong="w",
+        signature="s",
+        instead="i",
+        session="c4a1",
     )
     assert "Anti-pattern stored" in out
     row = next(iter(store.rows.values()))
@@ -85,8 +105,11 @@ def test_anti_pattern_writes(store):
 
 def test_session_close_writes(store):
     out = reflect_mod.session_close(
-        session_id="c4a1", reasoning_changed="rc", do_differently="dd",
-        still_uncertain="su", temptations="tx",
+        session_id="c4a1",
+        reasoning_changed="rc",
+        do_differently="dd",
+        still_uncertain="su",
+        temptations="tx",
     )
     assert "Session reflection stored" in out
     row = next(iter(store.rows.values()))
