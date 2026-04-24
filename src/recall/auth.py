@@ -6,6 +6,7 @@
 - require_hex: write-side tools require a 4-hex agent id so every brain
   entry can be traced back to a specific agent session.
 """
+
 from __future__ import annotations
 
 import hmac
@@ -13,7 +14,6 @@ import re
 
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import JSONResponse
-
 
 _HEX_RE = re.compile(r"^(copilot-)?[0-9a-f]{4}$")
 

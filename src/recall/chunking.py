@@ -1,5 +1,6 @@
 # @wbx-modified copilot-c4a1·MTN | 2026-04-23 | chunking + file ingestion | prev: NEW
 """Text chunking + single-file indexing helpers."""
+
 from __future__ import annotations
 
 import hashlib
@@ -26,7 +27,7 @@ def chunk_text(text: str, source: str, chunk_size: int, chunk_overlap: int) -> l
 def index_file(store: Store, filepath: str, chunk_size: int, chunk_overlap: int) -> int:
     """Read filepath, chunk it, upsert to store. Returns number of chunks indexed."""
     try:
-        with open(filepath, "r", encoding="utf-8", errors="replace") as f:
+        with open(filepath, encoding="utf-8", errors="replace") as f:
             content = f.read()
     except OSError:
         return 0
@@ -36,14 +37,17 @@ def index_file(store: Store, filepath: str, chunk_size: int, chunk_overlap: int)
     batch_size = 40
     indexed_at = datetime.now().isoformat()
     for i in range(0, len(chunks), batch_size):
-        batch = chunks[i:i + batch_size]
+        batch = chunks[i : i + batch_size]
         store.upsert(
             ids=[c["id"] for c in batch],
             documents=[c["text"] for c in batch],
-            metadatas=[{
-                "source": c["source"],
-                "chunk_index": c["chunk_index"],
-                "indexed_at": indexed_at,
-            } for c in batch],
+            metadatas=[
+                {
+                    "source": c["source"],
+                    "chunk_index": c["chunk_index"],
+                    "indexed_at": indexed_at,
+                }
+                for c in batch
+            ],
         )
     return len(chunks)

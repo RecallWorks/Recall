@@ -1,5 +1,6 @@
 # @wbx-modified copilot-c4a1·MTN | 2026-04-23 | reindex + index_file tools | prev: NEW
 """reindex / index_file — populate the store from disk."""
+
 from __future__ import annotations
 
 import glob

@@ -1,5 +1,6 @@
 # @wbx-modified copilot-c4a1·MTN | 2026-04-23 | remember tool | prev: NEW
 """remember — store an observation for future recall."""
+
 from __future__ import annotations
 
 import hashlib

@@ -6,6 +6,7 @@ hard-delete chunks. Instead it tags them as archived so they're filtered
 from default queries. A separate `purge` tool (not in v0.1) would be the
 only way to physically remove rows.
 """
+
 from __future__ import annotations
 
 import json

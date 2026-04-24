@@ -4,6 +4,7 @@
 Network-free: only exercises the env-var routing and noop/default sentinels.
 The OpenAI/Ollama branches are covered by import-error paths.
 """
+
 from __future__ import annotations
 
 import os

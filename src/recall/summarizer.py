@@ -12,6 +12,7 @@ Customers in regulated environments can configure the local backend so the
 brain never ships content to a hosted LLM. Customers without an LLM at all
 keep the noop default — Recall still works, it just stores raw content.
 """
+
 from __future__ import annotations
 
 import logging
@@ -49,15 +50,16 @@ class OpenAISummarizer:
     name = "openai"
 
     def __init__(
-        self, model: str, api_key: str, base_url: str | None = None,
+        self,
+        model: str,
+        api_key: str,
+        base_url: str | None = None,
         prompt_template: str | None = None,
     ) -> None:
         try:
             from openai import OpenAI  # type: ignore[import-not-found]
         except ImportError as e:
-            raise RuntimeError(
-                "RECALL_SUMMARIZER=openai requires `pip install openai`"
-            ) from e
+            raise RuntimeError("RECALL_SUMMARIZER=openai requires `pip install openai`") from e
         kwargs: dict = {"api_key": api_key}
         if base_url:
             kwargs["base_url"] = base_url
@@ -84,15 +86,15 @@ class OllamaSummarizer:
     name = "ollama"
 
     def __init__(
-        self, model: str, endpoint: str = "http://localhost:11434",
+        self,
+        model: str,
+        endpoint: str = "http://localhost:11434",
         prompt_template: str | None = None,
     ) -> None:
         try:
             import httpx  # type: ignore[import-not-found]
         except ImportError as e:
-            raise RuntimeError(
-                "RECALL_SUMMARIZER=ollama requires `pip install httpx`"
-            ) from e
+            raise RuntimeError("RECALL_SUMMARIZER=ollama requires `pip install httpx`") from e
         self._httpx = httpx
         self._model = model
         self._endpoint = endpoint.rstrip("/")
@@ -132,9 +134,7 @@ def make_summarizer_from_env() -> Summarizer:
             model=os.environ.get("RECALL_LLM_MODEL", "llama3.1"),
             endpoint=os.environ.get("RECALL_LLM_ENDPOINT", "http://localhost:11434"),
         )
-    raise RuntimeError(
-        f"Unknown RECALL_SUMMARIZER='{kind}'. Use one of: noop, openai, ollama."
-    )
+    raise RuntimeError(f"Unknown RECALL_SUMMARIZER='{kind}'. Use one of: noop, openai, ollama.")
 
 
 # Module-level lazy singleton — set by app.py at startup.

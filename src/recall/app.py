@@ -9,6 +9,7 @@ Builds a Starlette app with:
 
 Background thread initializes ChromaDB + optional git sync + initial index.
 """
+
 from __future__ import annotations
 
 import logging
@@ -25,13 +26,13 @@ from .git_sync import git_sync, resolve_index_paths
 from .store import init_store
 from .summarizer import init_summarizer, make_summarizer_from_env
 from .tools import TOOL_REGISTRY  # noqa: F401  (ensure registry assembled at import)
-from .tools import recall as _recall_mod
-from .tools import remember as _remember_mod
-from .tools import reindex as _reindex_mod
-from .tools import stats as _stats_mod
-from .tools import reflect as _reflect_mod
 from .tools import checkpoint as _checkpoint_mod
 from .tools import maintenance as _maintenance_mod
+from .tools import recall as _recall_mod
+from .tools import reflect as _reflect_mod
+from .tools import reindex as _reindex_mod
+from .tools import remember as _remember_mod
+from .tools import stats as _stats_mod
 from .transport.http import health_handler, tool_handler
 
 log = logging.getLogger("recall.app")
@@ -39,8 +40,15 @@ log = logging.getLogger("recall.app")
 
 def _propagate_config(cfg: Config) -> None:
     """Push the active Config into every tool module's lazy default."""
-    for mod in (_recall_mod, _remember_mod, _reindex_mod, _stats_mod,
-                _reflect_mod, _checkpoint_mod, _maintenance_mod):
+    for mod in (
+        _recall_mod,
+        _remember_mod,
+        _reindex_mod,
+        _stats_mod,
+        _reflect_mod,
+        _checkpoint_mod,
+        _maintenance_mod,
+    ):
         mod.set_config(cfg)
 
 
@@ -55,13 +63,16 @@ def _background_init(cfg: Config) -> None:
     except Exception:
         log.exception("Embedder init failed; using bundled default")
         from .embedder import DefaultChromaEmbedder
+
         embedder = DefaultChromaEmbedder()
 
     try:
         init_summarizer(make_summarizer_from_env())
     except Exception:
         log.exception("Summarizer init failed; using noop")
-        from .summarizer import NoopSummarizer, init_summarizer as _is
+        from .summarizer import NoopSummarizer
+        from .summarizer import init_summarizer as _is
+
         _is(NoopSummarizer())
 
     try:
@@ -78,6 +89,7 @@ def _background_init(cfg: Config) -> None:
 
     paths = resolve_index_paths(cfg.repo_dir, cfg.index_dirs, cfg.artifacts_dir)
     from .store import get_store
+
     if get_store().count() == 0 and paths:
         log.info("Empty store — running initial maintenance")
         try:

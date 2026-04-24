@@ -1,6 +1,7 @@
 # @wbx-modified copilot-c4a1·MTN | 2026-04-23 | Recall Wk1 Day 1 — in-memory Store fake for unit tests | prev: NEW
 """In-memory store implementing the Store protocol — used by unit tests
 to avoid spinning up ChromaDB."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -21,7 +22,7 @@ class FakeStore:
         return len(self.rows)
 
     def upsert(self, ids, documents, metadatas) -> None:
-        for i, doc, meta in zip(ids, documents, metadatas):
+        for i, doc, meta in zip(ids, documents, metadatas, strict=False):
             self.rows[i] = _Row(id=i, document=doc, metadata=dict(meta))
 
     def query(self, query_texts, n_results, where=None):
@@ -59,6 +60,7 @@ def install(monkeypatch=None) -> FakeStore:
     If monkeypatch is provided (pytest fixture), uses it; otherwise mutates directly.
     """
     from recall import store as store_mod
+
     fake = FakeStore()
     if monkeypatch is not None:
         monkeypatch.setattr(store_mod, "_store", fake)

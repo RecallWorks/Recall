@@ -3,6 +3,7 @@
 
 Lazy import so plain-HTTP deployments don't require the mcp package.
 """
+
 from __future__ import annotations
 
 

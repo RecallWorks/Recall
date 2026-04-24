@@ -1,6 +1,7 @@
 # @wbx-modified copilot-c4a1·MTN | 2026-04-23 | maintenance + snapshot_index | prev: NEW
 """maintenance — git pull + reindex + warm query + snapshot.
 snapshot_index — explicit durable copy of the live store."""
+
 from __future__ import annotations
 
 import glob
@@ -48,7 +49,8 @@ def maintenance(pull: bool = True) -> str:
             proc = subprocess.run(
                 ["git", "pull", "--ff-only"],
                 cwd=cfg.repo_dir,
-                capture_output=True, text=True,
+                capture_output=True,
+                text=True,
                 timeout=60,
             )
             results.append(f"Git pull: {proc.stdout.strip() or proc.stderr.strip()}")

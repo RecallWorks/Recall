@@ -1,5 +1,6 @@
 # @wbx-modified copilot-c4a1·MTN | 2026-04-23 | checkpoint + pulse | prev: NEW
 """checkpoint — snapshot working state. pulse — read it back."""
+
 from __future__ import annotations
 
 import hashlib
@@ -28,8 +29,12 @@ def _config() -> Config:
 
 
 def checkpoint(
-    intent: str, established: str, pursuing: str, open_questions: str,
-    session: str = "", domain: str = "",
+    intent: str,
+    established: str,
+    pursuing: str,
+    open_questions: str,
+    session: str = "",
+    domain: str = "",
 ) -> str:
     """Snapshot current working state into the brain.
 
@@ -54,12 +59,20 @@ def checkpoint(
     )
     chunk_id = hashlib.sha256(f"checkpoint:{ts}".encode()).hexdigest()[:16]
     metadata = {
-        "source": f"checkpoint/{session}", "chunk_index": 0,
-        "indexed_at": ts, "type": "checkpoint",
-        "domain": domain or "general", "session": session,
+        "source": f"checkpoint/{session}",
+        "chunk_index": 0,
+        "indexed_at": ts,
+        "type": "checkpoint",
+        "domain": domain or "general",
+        "session": session,
     }
     store.upsert(ids=[chunk_id], documents=[document], metadatas=[metadata])
-    persist_artifact(cfg.artifacts_dir, "checkpoints", f"{session}_{chunk_id}", f"# Checkpoint: {session}\n\n{document}")
+    persist_artifact(
+        cfg.artifacts_dir,
+        "checkpoints",
+        f"{session}_{chunk_id}",
+        f"# Checkpoint: {session}\n\n{document}",
+    )
     entry = {"id": chunk_id, "ts": ts, "document": document, "metadata": metadata}
     S.checkpoint_ring.append(entry)
     if len(S.checkpoint_ring) > cfg.checkpoint_ring_max:
@@ -100,7 +113,8 @@ def _pulse_checkpoint(store) -> str:
     if store.count() > 0:
         cp = store.query(
             query_texts=["checkpoint current state intent"],
-            n_results=1, where={"type": "checkpoint"},
+            n_results=1,
+            where={"type": "checkpoint"},
         )
         if cp["documents"] and cp["documents"][0]:
             return f"=== LAST CHECKPOINT (from vector store) ===\n{cp['documents'][0][0]}\n"
@@ -112,7 +126,7 @@ def _pulse_reasoning(store, query: str) -> str:
     if not (r["documents"] and r["documents"][0]):
         return ""
     lines = ["=== RELEVANT REASONING ==="]
-    for doc, meta in zip(r["documents"][0], r["metadatas"][0]):
+    for doc, meta in zip(r["documents"][0], r["metadatas"][0], strict=False):
         lines.append(
             f"--- [{meta.get('domain', '?')}] confidence={meta.get('confidence', '?')} ---\n{doc}\n"
         )
@@ -124,7 +138,7 @@ def _pulse_anti_patterns(store, query: str) -> str:
     if not (a["documents"] and a["documents"][0]):
         return ""
     lines = ["=== WATCH OUT (anti-patterns) ==="]
-    for doc, meta in zip(a["documents"][0], a["metadatas"][0]):
+    for doc, meta in zip(a["documents"][0], a["metadatas"][0], strict=False):
         lines.append(f"--- [{meta.get('domain', '?')}] ---\n{doc}\n")
     return "\n".join(lines)
 
@@ -132,7 +146,8 @@ def _pulse_anti_patterns(store, query: str) -> str:
 def _pulse_reflection(store) -> str:
     r = store.query(
         query_texts=["session reflection close"],
-        n_results=1, where={"type": "reflection"},
+        n_results=1,
+        where={"type": "reflection"},
     )
     if r["documents"] and r["documents"][0]:
         return f"=== LAST SESSION REFLECTION ===\n{r['documents'][0][0]}\n"
