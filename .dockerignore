@@ -1,0 +1,20 @@
+# @wbx-modified copilot-c4a1·MTN | 2026-04-23 | Recall Wk1 Day 3 — keep build context lean | prev: NEW
+**/__pycache__
+**/*.pyc
+**/*.pyo
+**/.pytest_cache
+**/.mypy_cache
+**/.ruff_cache
+.git
+.github
+.venv
+venv
+env
+tests
+docs
+examples
+enterprise
+_strategy
+*.md
+!README.md
+data

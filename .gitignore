@@ -1,0 +1,18 @@
+# @wbx-modified copilot-b8d2·MTN | 2026-04-23 | initial gitignore for Recall planning workspace | prev: NEW
+
+# Strategy notes — never published
+_strategy/
+**/design-partners*.md
+**/customer-list*.md
+
+# Local artifacts
+*.bak-*
+*.log
+.venv/
+__pycache__/
+.DS_Store
+
+# Secrets
+.env
+*.pem
+*.key

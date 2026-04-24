@@ -1,0 +1,23 @@
+# @wbx-modified copilot-c4a1·MTN | 2026-04-23 | Recall Wk1 Day 3 — quickstart compose | prev: NEW
+services:
+  recall:
+    build:
+      context: ../..
+      dockerfile: docker/single-tenant/Dockerfile
+    image: recall:latest
+    container_name: recall
+    restart: unless-stopped
+    ports:
+      - "8787:8787"
+    environment:
+      # Required: at minimum API_KEY (single-user) OR API_KEYS (JSON map).
+      API_KEY: "${RECALL_API_KEY:-changeme}"
+      # Optional: clone an external knowledge repo on every boot.
+      # GIT_REPO_URL: "https://github.com/your-org/your-knowledge-repo.git"
+      # GIT_TOKEN:    "${GIT_TOKEN:-}"
+      AUTO_SNAPSHOT_EVERY: "50"
+    volumes:
+      - recall-data:/data
+
+volumes:
+  recall-data:
