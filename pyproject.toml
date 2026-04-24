@@ -22,7 +22,7 @@ classifiers = [
 dependencies = [
     "chromadb>=0.5,<1.0",
     "starlette>=0.37",
-    "uvicorn[standard]>=0.30",
+    "uvicorn[standard]>=0.46.0",
     "anyio>=4.0",
 ]
 
