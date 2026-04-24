@@ -6,7 +6,7 @@
 # Run:     docker run -p 8787:8787 -e API_KEY=secret -v recall-data:/data recall:latest
 # Health:  curl http://localhost:8787/health
 
-FROM python:3.12-slim AS base
+FROM python:3.14-slim AS base
 
 # Install git for optional GIT_REPO_URL sync. Stay minimal otherwise.
 RUN apt-get update \
