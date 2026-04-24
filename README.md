@@ -12,6 +12,8 @@
 [![MCP](https://img.shields.io/badge/MCP-compatible-7c3aed)](https://modelcontextprotocol.io)
 [![Container](https://img.shields.io/badge/ghcr.io-recallworks%2Frecall-2496ED?logo=docker&logoColor=white)](https://github.com/RecallWorks/Recall/pkgs/container/recall)
 
+[**OSS quickstart**](#five-minute-install) · [**Recall Pro →**](#recall-open-source-vs-recall-pro-vs-hosted) · [**Book a demo**](mailto:sales@recall.works?subject=Recall%20demo) · [**IceWhisperer for Encompass**](https://icewhisperer.ai)
+
 </div>
 
 > Your agent forgets every session. Recall fixes that — with a small,
@@ -85,8 +87,7 @@ Full walkthrough: [docs/quickstart.md](docs/quickstart.md).
 | **MCP-native**        | yes, plus plain HTTP                              | partial / via wrapper           |
 | **Ops model**         | single binary, single container                   | multi-service stack             |
 
-If you want a managed service, that's coming under `enterprise/`. If you want
-a brain you fully own, the OSS core is enough.
+If you want a managed service, see [Recall Cloud](#recall-open-source-vs-recall-pro-vs-hosted) below. If you want a brain you fully own, this OSS core is enough.
 
 ---
 
@@ -138,6 +139,41 @@ Security issues: see [SECURITY.md](SECURITY.md).
 
 - `src/recall/`, `clients/`, `docker/single-tenant/`, `docs/`, `examples/` — **MIT** ([LICENSE](LICENSE))
 - `enterprise/` — **BSL 1.1**, 5-seat additional-use grant, converts to MIT after 3 years ([LICENSE-COMMERCIAL.md](LICENSE-COMMERCIAL.md))
+
+---
+
+## Recall Open Source vs. Recall Pro vs. Hosted
+
+| Capability                          | OSS (this repo) | **Recall Pro** | **Recall Cloud** |
+|-------------------------------------|:---------------:|:--------------:|:----------------:|
+| Single-tenant Docker image          | ✅              | ✅             | n/a (hosted)     |
+| 13 memory tools, MCP + HTTP         | ✅              | ✅             | ✅               |
+| BYO embedder + LLM                  | ✅              | ✅             | ✅               |
+| Append-only artifacts + auto-snapshot| ✅             | ✅             | ✅               |
+| Multi-tenant, SSO, RBAC             | —               | ✅             | ✅               |
+| Audit log + retention policy        | —               | ✅             | ✅               |
+| Cross-session entity graph          | —               | ✅             | ✅               |
+| PII sanitization pipeline           | —               | ✅             | ✅               |
+| Snapshot replication / DR           | —               | ✅             | ✅               |
+| Vendor support + SLA                | community       | business hours | 24×7             |
+| Hosted on our infra                 | —               | —              | ✅               |
+| **Pricing**                         | **free**        | **from $99/mo per node** | **from $0.10 per 1k tools** |
+
+**Recall Pro** ships from the `enterprise/` tree under a [Business Source License](LICENSE-COMMERCIAL.md) — source-available, 5-seat free Additional Use Grant, converts to MIT after 3 years. Buy a license and the `enterprise/` modules light up alongside your OSS install.
+
+**Recall Cloud** is the hosted multi-tenant version. Same tools, no infra. Reach out for early-access pricing.
+
+➡️ Talk to sales: `sales@recall.works` · Book a 20-min walkthrough: `https://recall.works/demo`
+
+---
+
+## Vertical builds powered by Recall
+
+Recall is the engine. We ship turn-key vertical brains on top of it:
+
+- **[IceWhisperer](https://icewhisperer.ai)** — the memory + workflow brain for ICE Mortgage Technology / Encompass shops. Pre-loaded SDK index, settings recipes, plugin audits, drift detection. Pilots from $250/mo.
+
+If you want a vertical brain for *your* industry, we'll build it. Email `partners@recall.works`.
 
 ---
 

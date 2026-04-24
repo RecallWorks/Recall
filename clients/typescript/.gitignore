@@ -1,0 +1,6 @@
+# @wbx-modified copilot-a3f7·MTN | 2026-04-24 | TS SDK gitignore | prev: NEW
+node_modules/
+dist/
+*.tgz
+.DS_Store
+coverage/
