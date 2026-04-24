@@ -20,7 +20,7 @@ classifiers = [
     "Topic :: Software Development :: Libraries",
 ]
 dependencies = [
-    "chromadb>=0.5,<1.0",
+    "chromadb>=1.5.8,<2.0",
     "starlette>=0.37",
     "uvicorn[standard]>=0.30",
     "anyio>=4.0",
