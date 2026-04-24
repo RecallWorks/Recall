@@ -1,8 +1,5 @@
-# @wbx-modified copilot-a3f7·MTN | 2026-04-24 | sync HTTP client | prev: NEW
-"""Synchronous Recall client.
-
-Uses httpx.Client. Thread-safe. Use as a context manager or call ``close()``.
-"""
+# @wbx-modified copilot-a3f7·MTN | 2026-04-24 | sync HTTP client (real contract) | prev: 0.1.0
+"""Synchronous Recall client. Mirrors the server's real tool registry."""
 
 from __future__ import annotations
 
@@ -16,7 +13,7 @@ from .exceptions import (
     RecallServerError,
     RecallToolError,
 )
-from .models import Hit, RememberResult, ToolResult
+from .models import ToolResponse
 
 
 class RecallClient:
@@ -24,11 +21,9 @@ class RecallClient:
 
     Args:
         base_url: Base URL of the Recall server, e.g. ``http://localhost:8787``.
-        api_key: API key sent as ``Authorization: Bearer <key>``.
+        api_key: API key sent as ``X-API-Key``.
         timeout: Per-request timeout in seconds. Default 30.
-        client: Optional pre-configured ``httpx.Client``. If provided,
-            ``base_url`` and ``api_key`` are still used to build request URLs
-            and headers, but the underlying transport is yours.
+        client: Optional pre-configured ``httpx.Client``.
     """
 
     def __init__(
@@ -44,9 +39,9 @@ class RecallClient:
         self._client = client or httpx.Client(
             timeout=timeout,
             headers={
-                "Authorization": f"Bearer {api_key}",
+                "X-API-Key": api_key,
                 "Content-Type": "application/json",
-                "User-Agent": "recall-client-python/0.1.0",
+                "User-Agent": "recall-client-python/0.2.0",
             },
         )
 
@@ -57,17 +52,16 @@ class RecallClient:
         self.close()
 
     def close(self) -> None:
-        """Close the underlying HTTP client (only if we own it)."""
         if self._owns_client:
             self._client.close()
 
-    # ── core tool dispatch ────────────────────────────────────────────────
+    # ── core dispatch ────────────────────────────────────────────────────
 
-    def call_tool(self, name: str, **payload: Any) -> dict[str, Any]:
-        """Invoke any tool by name. Returns the raw JSON response."""
+    def call_tool(self, name: str, **kwargs: Any) -> ToolResponse:
+        """Invoke any registered tool by name."""
         url = f"{self.base_url}/tool/{name}"
         try:
-            resp = self._client.post(url, json=payload)
+            resp = self._client.post(url, json=kwargs)
         except httpx.RequestError as e:
             raise RecallConnectionError(f"Cannot reach {url}: {e}") from e
 
@@ -75,95 +69,167 @@ class RecallClient:
             raise RecallAuthError(f"Auth failed ({resp.status_code}): {resp.text}")
         if resp.status_code >= 500:
             raise RecallServerError(
-                f"Server error {resp.status_code}: {resp.text}",
-                resp.status_code,
+                f"Server error {resp.status_code}: {resp.text}", resp.status_code
             )
         if resp.status_code >= 400:
             raise RecallToolError(name, f"HTTP {resp.status_code}: {resp.text}")
 
         data = resp.json()
-        if isinstance(data, dict) and data.get("error"):
+        if isinstance(data, dict) and "error" in data and data.get("error"):
             raise RecallToolError(name, str(data["error"]))
-        return data if isinstance(data, dict) else {"result": data}
+        if not isinstance(data, dict):
+            raise RecallToolError(name, f"unexpected response shape: {data!r}")
+        return ToolResponse.from_dict(data)
 
-    # ── typed convenience wrappers ────────────────────────────────────────
+    # ── typed wrappers (exact server signatures) ─────────────────────────
 
     def remember(
-        self,
-        content: str,
-        tags: list[str] | None = None,
-        metadata: dict[str, Any] | None = None,
-    ) -> RememberResult:
-        """Store a memory. Returns the assigned id."""
-        payload: dict[str, Any] = {"content": content}
-        if tags:
-            payload["tags"] = tags
-        if metadata:
-            payload["metadata"] = metadata
-        result = self.call_tool("remember", **payload)
-        return RememberResult.from_dict(result)
+        self, content: str, source: str = "agent-observation", tags: str = ""
+    ) -> ToolResponse:
+        """Store a memory.
 
-    def recall(
-        self,
-        query: str,
-        limit: int = 5,
-        tags: list[str] | None = None,
-    ) -> list[Hit]:
-        """Search memories semantically. Returns ranked hits."""
-        payload: dict[str, Any] = {"query": query, "limit": limit}
-        if tags:
-            payload["tags"] = tags
-        result = self.call_tool("recall", **payload)
-        hits = result.get("hits", result.get("results", []))
-        return [Hit.from_dict(h) for h in hits]
+        Args:
+            content: The text to remember.
+            source: Origin label (default ``agent-observation``).
+            tags: Comma-separated tag string (e.g. ``"pref,ui"``).
+        """
+        return self.call_tool("remember", content=content, source=source, tags=tags)
 
-    def reflect(self, summary: str, tags: list[str] | None = None) -> ToolResult:
-        """Persist a reflection / lesson learned."""
-        payload: dict[str, Any] = {"summary": summary}
-        if tags:
-            payload["tags"] = tags
-        return ToolResult.from_dict(self.call_tool("reflect", **payload))
+    def recall(self, query: str, n: int = 5, type: str = "all") -> ToolResponse:
+        """Semantic recall.
+
+        Args:
+            query: What to search for.
+            n: Number of hits to return (default 5).
+            type: Filter (``all`` | ``observation`` | ``reflection`` | ``checkpoint``).
+        """
+        return self.call_tool("recall", query=query, n=n, type=type)
+
+    def reflect(
+        self,
+        domain: str,
+        hypothesis: str,
+        reasoning: str,
+        result: str,
+        revised_belief: str,
+        next_time: str,
+        confidence: float = 0.7,
+        session: str = "",
+    ) -> ToolResponse:
+        """Persist a structured reasoning artifact."""
+        return self.call_tool(
+            "reflect",
+            domain=domain,
+            hypothesis=hypothesis,
+            reasoning=reasoning,
+            result=result,
+            revised_belief=revised_belief,
+            next_time=next_time,
+            confidence=confidence,
+            session=session,
+        )
+
+    def anti_pattern(
+        self,
+        domain: str,
+        temptation: str,
+        why_wrong: str,
+        signature: str,
+        instead: str,
+        session: str = "",
+    ) -> ToolResponse:
+        """Record a 'looks right but isn't' pattern."""
+        return self.call_tool(
+            "anti_pattern",
+            domain=domain,
+            temptation=temptation,
+            why_wrong=why_wrong,
+            signature=signature,
+            instead=instead,
+            session=session,
+        )
+
+    def session_close(
+        self,
+        session_id: str,
+        reasoning_changed: str,
+        do_differently: str,
+        still_uncertain: str,
+        temptations: str,
+    ) -> ToolResponse:
+        """End-of-session reflection."""
+        return self.call_tool(
+            "session_close",
+            session_id=session_id,
+            reasoning_changed=reasoning_changed,
+            do_differently=do_differently,
+            still_uncertain=still_uncertain,
+            temptations=temptations,
+        )
 
     def checkpoint(
         self,
-        session: str,
-        established: str,
         intent: str,
+        established: str,
         pursuing: str,
-        summary: str,
-        open_questions: list[str] | None = None,
-    ) -> ToolResult:
-        """Snapshot the current session state."""
-        return ToolResult.from_dict(
-            self.call_tool(
-                "checkpoint",
-                session=session,
-                established=established,
-                intent=intent,
-                pursuing=pursuing,
-                summary=summary,
-                open_questions=open_questions or [],
-            )
+        open_questions: str,
+        session: str = "",
+        domain: str = "",
+    ) -> ToolResponse:
+        """Snapshot current working state."""
+        return self.call_tool(
+            "checkpoint",
+            intent=intent,
+            established=established,
+            pursuing=pursuing,
+            open_questions=open_questions,
+            session=session,
+            domain=domain,
         )
 
-    def pulse(self) -> dict[str, Any]:
-        """Get current server health + active sessions."""
-        return self.call_tool("pulse")
+    def pulse(self, domain: str = "", include_reasoning: bool = True) -> ToolResponse:
+        """Get current orientation (last checkpoint, recent reasoning)."""
+        return self.call_tool("pulse", domain=domain, include_reasoning=include_reasoning)
 
-    def memory_stats(self) -> dict[str, Any]:
-        """Get aggregate counts (chunks, sessions, artifacts)."""
+    def memory_stats(self) -> ToolResponse:
+        """Aggregate counts across the store."""
         return self.call_tool("memory_stats")
 
-    def forget(self, id: str, source: str = "user-request") -> ToolResult:
-        """Soft-archive a memory by id. Source defaults to 'user-request'."""
-        return ToolResult.from_dict(self.call_tool("forget", id=id, source=source))
+    def forget(self, source: str) -> ToolResponse:
+        """Soft-archive all chunks matching ``source``.
+
+        NOTE: ``source`` is the tag/source label, NOT a chunk id. The server
+        marks matching chunks ``archived=true`` rather than deleting them.
+        """
+        return self.call_tool("forget", source=source)
+
+    def reindex(self, path: str = "") -> ToolResponse:
+        """Re-index a path (or the whole corpus if empty)."""
+        return self.call_tool("reindex", path=path)
+
+    def index_file(self, filepath: str) -> ToolResponse:
+        """Index a single file."""
+        return self.call_tool("index_file", filepath=filepath)
+
+    def maintenance(self, pull: bool = True) -> ToolResponse:
+        """Run maintenance (default: pull latest corpus + reindex)."""
+        return self.call_tool("maintenance", pull=pull)
+
+    def snapshot_index(self) -> ToolResponse:
+        """Snapshot the current index to the prebuilt directory."""
+        return self.call_tool("snapshot_index")
+
+    # ── plain HTTP endpoints (no auth) ────────────────────────────────────
 
     def health(self) -> dict[str, Any]:
-        """Plain GET /health — does not require a tool path."""
+        """GET /health — does not require auth."""
         try:
             resp = self._client.get(f"{self.base_url}/health")
         except httpx.RequestError as e:
             raise RecallConnectionError(f"Cannot reach health: {e}") from e
         if resp.status_code != 200:
-            raise RecallServerError(f"Health failed: {resp.status_code}", resp.status_code)
-        return resp.json()
+            raise RecallServerError(
+                f"Health failed: {resp.status_code}", resp.status_code
+            )
+        data = resp.json()
+        return data if isinstance(data, dict) else {"raw": data}

@@ -16,3 +16,7 @@ __pycache__/
 .env
 *.pem
 *.key
+
+# Local secrets — NEVER commit
+.tokens.local
+

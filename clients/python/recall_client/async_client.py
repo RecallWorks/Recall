@@ -1,5 +1,5 @@
-# @wbx-modified copilot-a3f7·MTN | 2026-04-24 | async HTTP client | prev: NEW
-"""Asynchronous Recall client. Mirrors RecallClient API surface."""
+# @wbx-modified copilot-a3f7·MTN | 2026-04-24 | async client matching real contract | prev: 0.1.0
+"""Asynchronous Recall client. Mirrors RecallClient surface."""
 
 from __future__ import annotations
 
@@ -13,11 +13,11 @@ from .exceptions import (
     RecallServerError,
     RecallToolError,
 )
-from .models import Hit, RememberResult, ToolResult
+from .models import ToolResponse
 
 
 class AsyncRecallClient:
-    """Async HTTP client for a Recall server. Use as an async context manager."""
+    """Async HTTP client for a Recall server."""
 
     def __init__(
         self,
@@ -32,9 +32,9 @@ class AsyncRecallClient:
         self._client = client or httpx.AsyncClient(
             timeout=timeout,
             headers={
-                "Authorization": f"Bearer {api_key}",
+                "X-API-Key": api_key,
                 "Content-Type": "application/json",
-                "User-Agent": "recall-client-python/0.1.0",
+                "User-Agent": "recall-client-python/0.2.0",
             },
         )
 
@@ -48,10 +48,10 @@ class AsyncRecallClient:
         if self._owns_client:
             await self._client.aclose()
 
-    async def call_tool(self, name: str, **payload: Any) -> dict[str, Any]:
+    async def call_tool(self, name: str, **kwargs: Any) -> ToolResponse:
         url = f"{self.base_url}/tool/{name}"
         try:
-            resp = await self._client.post(url, json=payload)
+            resp = await self._client.post(url, json=kwargs)
         except httpx.RequestError as e:
             raise RecallConnectionError(f"Cannot reach {url}: {e}") from e
 
@@ -59,75 +59,128 @@ class AsyncRecallClient:
             raise RecallAuthError(f"Auth failed ({resp.status_code}): {resp.text}")
         if resp.status_code >= 500:
             raise RecallServerError(
-                f"Server error {resp.status_code}: {resp.text}",
-                resp.status_code,
+                f"Server error {resp.status_code}: {resp.text}", resp.status_code
             )
         if resp.status_code >= 400:
             raise RecallToolError(name, f"HTTP {resp.status_code}: {resp.text}")
 
         data = resp.json()
-        if isinstance(data, dict) and data.get("error"):
+        if isinstance(data, dict) and "error" in data and data.get("error"):
             raise RecallToolError(name, str(data["error"]))
-        return data if isinstance(data, dict) else {"result": data}
+        if not isinstance(data, dict):
+            raise RecallToolError(name, f"unexpected response shape: {data!r}")
+        return ToolResponse.from_dict(data)
 
     async def remember(
+        self, content: str, source: str = "agent-observation", tags: str = ""
+    ) -> ToolResponse:
+        return await self.call_tool("remember", content=content, source=source, tags=tags)
+
+    async def recall(self, query: str, n: int = 5, type: str = "all") -> ToolResponse:
+        return await self.call_tool("recall", query=query, n=n, type=type)
+
+    async def reflect(
         self,
-        content: str,
-        tags: list[str] | None = None,
-        metadata: dict[str, Any] | None = None,
-    ) -> RememberResult:
-        payload: dict[str, Any] = {"content": content}
-        if tags:
-            payload["tags"] = tags
-        if metadata:
-            payload["metadata"] = metadata
-        return RememberResult.from_dict(await self.call_tool("remember", **payload))
+        domain: str,
+        hypothesis: str,
+        reasoning: str,
+        result: str,
+        revised_belief: str,
+        next_time: str,
+        confidence: float = 0.7,
+        session: str = "",
+    ) -> ToolResponse:
+        return await self.call_tool(
+            "reflect",
+            domain=domain,
+            hypothesis=hypothesis,
+            reasoning=reasoning,
+            result=result,
+            revised_belief=revised_belief,
+            next_time=next_time,
+            confidence=confidence,
+            session=session,
+        )
 
-    async def recall(
-        self, query: str, limit: int = 5, tags: list[str] | None = None
-    ) -> list[Hit]:
-        payload: dict[str, Any] = {"query": query, "limit": limit}
-        if tags:
-            payload["tags"] = tags
-        result = await self.call_tool("recall", **payload)
-        hits = result.get("hits", result.get("results", []))
-        return [Hit.from_dict(h) for h in hits]
+    async def anti_pattern(
+        self,
+        domain: str,
+        temptation: str,
+        why_wrong: str,
+        signature: str,
+        instead: str,
+        session: str = "",
+    ) -> ToolResponse:
+        return await self.call_tool(
+            "anti_pattern",
+            domain=domain,
+            temptation=temptation,
+            why_wrong=why_wrong,
+            signature=signature,
+            instead=instead,
+            session=session,
+        )
 
-    async def reflect(self, summary: str, tags: list[str] | None = None) -> ToolResult:
-        payload: dict[str, Any] = {"summary": summary}
-        if tags:
-            payload["tags"] = tags
-        return ToolResult.from_dict(await self.call_tool("reflect", **payload))
+    async def session_close(
+        self,
+        session_id: str,
+        reasoning_changed: str,
+        do_differently: str,
+        still_uncertain: str,
+        temptations: str,
+    ) -> ToolResponse:
+        return await self.call_tool(
+            "session_close",
+            session_id=session_id,
+            reasoning_changed=reasoning_changed,
+            do_differently=do_differently,
+            still_uncertain=still_uncertain,
+            temptations=temptations,
+        )
 
     async def checkpoint(
         self,
-        session: str,
-        established: str,
         intent: str,
+        established: str,
         pursuing: str,
-        summary: str,
-        open_questions: list[str] | None = None,
-    ) -> ToolResult:
-        return ToolResult.from_dict(
-            await self.call_tool(
-                "checkpoint",
-                session=session,
-                established=established,
-                intent=intent,
-                pursuing=pursuing,
-                summary=summary,
-                open_questions=open_questions or [],
-            )
+        open_questions: str,
+        session: str = "",
+        domain: str = "",
+    ) -> ToolResponse:
+        return await self.call_tool(
+            "checkpoint",
+            intent=intent,
+            established=established,
+            pursuing=pursuing,
+            open_questions=open_questions,
+            session=session,
+            domain=domain,
         )
 
-    async def pulse(self) -> dict[str, Any]:
-        return await self.call_tool("pulse")
+    async def pulse(
+        self, domain: str = "", include_reasoning: bool = True
+    ) -> ToolResponse:
+        return await self.call_tool(
+            "pulse", domain=domain, include_reasoning=include_reasoning
+        )
 
-    async def memory_stats(self) -> dict[str, Any]:
+    async def memory_stats(self) -> ToolResponse:
         return await self.call_tool("memory_stats")
 
-    async def forget(self, id: str, source: str = "user-request") -> ToolResult:
-        return ToolResult.from_dict(await self.call_tool("forget", id=id, source=source))
+    async def forget(self, source: str) -> ToolResponse:
+        return await self.call_tool("forget", source=source)
+
+    async def reindex(self, path: str = "") -> ToolResponse:
+        return await self.call_tool("reindex", path=path)
+
+    async def index_file(self, filepath: str) -> ToolResponse:
+        return await self.call_tool("index_file", filepath=filepath)
+
+    async def maintenance(self, pull: bool = True) -> ToolResponse:
+        return await self.call_tool("maintenance", pull=pull)
+
+    async def snapshot_index(self) -> ToolResponse:
+        return await self.call_tool("snapshot_index")
 
     async def health(self) -> dict[str, Any]:
         try:
@@ -135,5 +188,8 @@ class AsyncRecallClient:
         except httpx.RequestError as e:
             raise RecallConnectionError(f"Cannot reach health: {e}") from e
         if resp.status_code != 200:
-            raise RecallServerError(f"Health failed: {resp.status_code}", resp.status_code)
-        return resp.json()
+            raise RecallServerError(
+                f"Health failed: {resp.status_code}", resp.status_code
+            )
+        data = resp.json()
+        return data if isinstance(data, dict) else {"raw": data}
