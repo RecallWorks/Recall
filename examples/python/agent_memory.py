@@ -21,7 +21,8 @@ H = {"X-API-Key": KEY, "Content-Type": "application/json"}
 
 
 def call(tool: str, **payload) -> dict:
-    r = requests.post(f"{URL}/tool/{tool}", headers=H, json=payload, timeout=30)
+    # First request triggers embedder model load (~10-30s); use generous timeout.
+    r = requests.post(f"{URL}/tool/{tool}", headers=H, json=payload, timeout=120)
     r.raise_for_status()
     return r.json()
 
