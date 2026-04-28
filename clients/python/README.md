@@ -1,12 +1,21 @@
-<!-- @wbx-modified copilot-a3f7·MTN | 2026-04-24 | Python SDK README | prev: NEW -->
-# recall-client (Python)
+<!-- @wbx-modified copilot-b1c4 | 2026-04-28 04:08 MTN | v0.3.0-deprecated | marked SDK as unpublished; Python users should call HTTP directly | prev: copilot-a3f7@2026-04-24 -->
+# recall-client (Python) — DEPRECATED / UNPUBLISHED
 
-Official Python SDK for [Recall](https://github.com/RecallWorks/Recall) — open-source memory for AI agents.
+> **Status (2026-04-28):** This SDK is **not currently published to PyPI**. The
+> `recall-client` name on PyPI was deleted on 2026-04-27 and is permanently
+> reserved by PyPI policy. Python users should call the HTTP API directly using
+> `requests` or `httpx` — see [`examples/python/agent_memory.py`](../../examples/python/agent_memory.py).
+>
+> The server package is published as [`ai-recallworks`](https://pypi.org/project/ai-recallworks/).
+>
+> Source remains here for reference and for anyone who wants to vendor it.
 
-## Install
+---
+
+## Install (from source only)
 
 ```bash
-pip install recall-client
+pip install ./clients/python
 ```
 
 ## Quick start

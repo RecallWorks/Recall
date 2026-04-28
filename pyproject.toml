@@ -1,11 +1,11 @@
-# @wbx-modified copilot-b1c4 | 2026-04-28 03:20 MTN | v0.3.3 | published as ai-recallworks (Steve's choice; passed PyPI similarity wall) | prev: copilot-b1c4@2026-04-28 03:10 MTN
+# @wbx-modified copilot-b1c4 | 2026-04-28 04:00 MTN | v0.3.4 | bumped chromadb<2.0 (1.x has cp312 wheels, drops chroma-hnswlib build dep) | prev: copilot-b1c4@2026-04-28 03:20 MTN
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
 name = "ai-recallworks"
-version = "0.3.3"
+version = "0.3.4"
 description = "Open-source agent-memory MCP server. recall.works"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -20,7 +20,7 @@ classifiers = [
     "Topic :: Software Development :: Libraries",
 ]
 dependencies = [
-    "chromadb>=0.5,<1.0",
+    "chromadb>=0.5,<2.0",
     "starlette>=0.37",
     "uvicorn[standard]>=0.30",
     "anyio>=4.0",
