@@ -7,6 +7,7 @@ All three require a hex agent-id session for traceability.
 from __future__ import annotations
 
 import hashlib
+import time
 from datetime import datetime
 
 from ..artifacts import persist_artifact
@@ -73,6 +74,7 @@ def reflect(
         "source": f"reasoning/{domain}",
         "chunk_index": 0,
         "indexed_at": datetime.now().isoformat(),
+        "indexed_at_epoch": time.time(),
         "type": "reasoning",
         "domain": domain,
         "result": result.split()[0] if result else "UNKNOWN",
@@ -128,6 +130,7 @@ def anti_pattern(
         "source": f"anti-pattern/{domain}",
         "chunk_index": 0,
         "indexed_at": datetime.now().isoformat(),
+        "indexed_at_epoch": time.time(),
         "type": "anti_pattern",
         "domain": domain,
         "session": session,
@@ -195,6 +198,7 @@ def session_close(
         "source": f"reflection/{session_id}",
         "chunk_index": 0,
         "indexed_at": datetime.now().isoformat(),
+        "indexed_at_epoch": time.time(),
         "type": "reflection",
         "domain": "session",
         "session": session_id,

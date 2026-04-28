@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import hashlib
+import time
 from datetime import datetime
 
 from ..artifacts import persist_artifact
@@ -44,6 +45,7 @@ def remember(content: str, source: str = "agent-observation", tags: str = "") ->
         "source": source,
         "chunk_index": 0,
         "indexed_at": datetime.now().isoformat(),
+        "indexed_at_epoch": time.time(),
         "type": "observation",
     }
     if tags:

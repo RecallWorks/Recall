@@ -1,7 +1,7 @@
-<!-- @wbx-modified copilot-a3f7·MTN | 2026-04-24 | v0.1.0 launch polish: badges, tighter hero, social previews | prev: copilot-a3f7@2026-04-23 -->
+<!-- @wbx-modified copilot-b1c4 | 2026-04-27 23:58 MTN | v0.3.3 | added ™ to H1 brand | prev: copilot-a3f7@2026-04-24 -->
 <div align="center">
 
-# Recall
+# Recall&trade;
 
 **Open-source memory for AI agents. MCP-native. Self-hosted. One Docker image.**
 

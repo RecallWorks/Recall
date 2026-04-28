@@ -104,6 +104,24 @@ class ChromaStore:
     def delete(self, ids: list[str]) -> None:
         self._collection.delete(ids=ids)
 
+    def get_page(self, limit: int, offset: int, include: list[str] | None = None) -> dict:
+        kwargs: dict[str, Any] = {"limit": limit, "offset": offset}
+        if include is not None:
+            kwargs["include"] = include
+        return self._collection.get(**kwargs)
+
+    def update_metadatas(self, ids: list[str], metadatas: list[dict]) -> None:
+        self._collection.update(ids=ids, metadatas=metadatas)
+
+    def get_all_ids(self) -> list[str]:
+        return self._collection.get(include=[])["ids"]
+
+    def get_by_ids(self, ids: list[str], include: list[str] | None = None) -> dict:
+        kwargs: dict[str, Any] = {"ids": ids}
+        if include is not None:
+            kwargs["include"] = include
+        return self._collection.get(**kwargs)
+
 
 # Module-level lazy singleton. app.py calls init_store(); tools call get_store().
 _store: Store | None = None
