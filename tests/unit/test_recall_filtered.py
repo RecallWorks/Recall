@@ -6,8 +6,6 @@ from __future__ import annotations
 import time
 from datetime import datetime, timedelta
 
-import pytest
-
 from tests.fakestore import install
 
 

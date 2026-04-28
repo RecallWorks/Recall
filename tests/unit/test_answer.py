@@ -11,7 +11,7 @@ network access is required. They prove the tool:
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 import pytest
 from fakestore import install
