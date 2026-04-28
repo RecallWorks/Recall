@@ -22,6 +22,16 @@ python examples/python/agent_memory.py
 
 ## Run a TypeScript example
 
+Zero-config (uses local `package.json`):
+
+```bash
+cd examples/typescript
+npm install
+npm start
+```
+
+Or one-liner without installing:
+
 ```bash
 npm install @recallworks/recall-client
 npx tsx examples/typescript/agent_memory.ts

@@ -1,12 +1,14 @@
-# @wbx-modified copilot-c4a1·MTN | 2026-04-23 | app entry — composes config + store + transports | prev: NEW
+# @wbx-modified copilot-b1c4 | 2026-04-27 23:30 MTN | v0.3.3 | mount MCP /sse + /mcp routes | prev: copilot-c4a1@2026-04-23
 """Application entry point.
 
 Builds a Starlette app with:
   - ApiKeyAuthMiddleware
   - GET /health
   - POST /tool/{name}
-  - MCP/SSE routes (mounted from FastMCP)
+  - GET  /sse  (MCP Server-Sent Events transport, optional)
+  - POST /mcp  (MCP Streamable HTTP transport, optional)
 
+The MCP routes are only mounted if the `mcp` extras are installed.
 Background thread initializes ChromaDB + optional git sync + initial index.
 """
 
@@ -29,6 +31,7 @@ from .tools import TOOL_REGISTRY  # noqa: F401  (ensure registry assembled at im
 from .tools import checkpoint as _checkpoint_mod
 from .tools import maintenance as _maintenance_mod
 from .tools import recall as _recall_mod
+from .tools import recall_filtered as _recall_filtered_mod
 from .tools import reflect as _reflect_mod
 from .tools import reindex as _reindex_mod
 from .tools import remember as _remember_mod
@@ -42,6 +45,7 @@ def _propagate_config(cfg: Config) -> None:
     """Push the active Config into every tool module's lazy default."""
     for mod in (
         _recall_mod,
+        _recall_filtered_mod,
         _remember_mod,
         _reindex_mod,
         _stats_mod,
@@ -109,6 +113,33 @@ def build_app(cfg: Config | None = None, *, start_background: bool = True) -> St
         Route("/health", health_handler, methods=["GET"]),
         Route("/tool/{name}", tool_handler, methods=["POST"]),
     ]
+
+    # Optionally mount FastMCP's SSE + Streamable-HTTP transports so MCP
+    # clients (Claude Desktop SSE mode, custom agents) can talk to the same
+    # 16 tools that HTTP /tool/{name} exposes. Lazy import: a Recall install
+    # without the `mcp` extra simply omits these routes.
+    #
+    # FastMCP's sse_app() already exposes /sse + /messages/ at its root, and
+    # streamable_http_app() exposes /mcp. We therefore mount at "/" and pick
+    # the SSE app's routes (its built-in dispatcher handles /messages/ correctly).
+    try:
+        from .transport.mcp_sse import build_mcp_server
+
+        _mcp = build_mcp_server(name="recall")
+        _sse_app = _mcp.sse_app()
+        _http_app = _mcp.streamable_http_app()
+        # Hoist the SSE app's routes (/sse + /messages/) onto our app
+        for _r in _sse_app.routes:
+            routes.append(_r)
+        # Hoist the streamable-HTTP /mcp route
+        for _r in _http_app.routes:
+            routes.append(_r)
+        log.info("MCP transports mounted at /sse, /messages/, and /mcp")
+    except ImportError:
+        log.info("mcp package not installed; SSE/Streamable-HTTP transports disabled")
+    except Exception:
+        log.exception("Failed to mount MCP transports (non-fatal)")
+
     app = Starlette(routes=routes)
     app.state.config = cfg
     app.add_middleware(ApiKeyAuthMiddleware, api_keys=cfg.api_keys)

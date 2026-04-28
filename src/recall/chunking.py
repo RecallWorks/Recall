@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import hashlib
+import time
 from datetime import datetime
 
 from .store import Store
@@ -36,6 +37,7 @@ def index_file(store: Store, filepath: str, chunk_size: int, chunk_overlap: int)
     chunks = chunk_text(content, filepath, chunk_size, chunk_overlap)
     batch_size = 40
     indexed_at = datetime.now().isoformat()
+    indexed_at_epoch = time.time()
     for i in range(0, len(chunks), batch_size):
         batch = chunks[i : i + batch_size]
         store.upsert(
@@ -46,6 +48,7 @@ def index_file(store: Store, filepath: str, chunk_size: int, chunk_overlap: int)
                     "source": c["source"],
                     "chunk_index": c["chunk_index"],
                     "indexed_at": indexed_at,
+                    "indexed_at_epoch": indexed_at_epoch,
                 }
                 for c in batch
             ],

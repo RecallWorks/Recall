@@ -1,4 +1,4 @@
-# @wbx-modified copilot-c4a1·MTN | 2026-04-23 | plain HTTP transport | prev: NEW
+# @wbx-modified copilot-b1c4 | 2026-04-27 19:30 MTN | v1.1 | structured envelope for recall + recall_filtered (port from server-azure v29.4) | prev: copilot-c4a1@2026-04-23
 """Plain HTTP transport — POST /tool/{name} with JSON body.
 
 Used by browser-side UIs and any non-MCP client. Auth is enforced by the
@@ -14,8 +14,18 @@ from starlette.responses import JSONResponse
 
 from ..store import is_ready
 from ..tools import TOOL_REGISTRY
+from ..tools.recall import _recall_structured
+from ..tools.recall_filtered import _recall_filtered_structured
 
 log = logging.getLogger("recall.transport.http")
+
+
+# Tools that return a structured envelope {result, results} instead of a
+# bare string. HTTP layer wraps with {tool, by} but does NOT cast result.
+_STRUCTURED_TOOLS = {
+    "recall": _recall_structured,
+    "recall_filtered": _recall_filtered_structured,
+}
 
 
 async def health_handler(request: Request) -> JSONResponse:
@@ -73,4 +83,12 @@ async def tool_handler(request: Request) -> JSONResponse:
     except Exception as e:
         log.exception("Tool %s failed", name)
         return JSONResponse({"error": f"tool failed: {e}"}, status_code=500)
+    structured = _STRUCTURED_TOOLS.get(name)
+    if structured is not None:
+        try:
+            payload = structured(**args)
+        except Exception:
+            log.exception("Structured envelope for %s failed; falling back to string", name)
+            payload = {"result": str(result), "results": []}
+        return JSONResponse({**payload, "tool": name, "by": user})
     return JSONResponse({"result": str(result), "tool": name, "by": user})

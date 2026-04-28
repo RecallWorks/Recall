@@ -1,13 +1,14 @@
-# @wbx-modified copilot-a3f7·MTN | 2026-04-23 | Wk2: BYO-embedder seam (default/openai/ollama) | prev: NEW
+# @wbx-modified copilot-b1c4 | 2026-04-27 23:25 MTN | v1.1 | added Voyage adapter (claim parity w/ site) | prev: copilot-a3f7@2026-04-23
 """Pluggable embedding backends.
 
 Lenders, hospitals, and any team handling regulated data refuse to ship their
 content to a public-cloud embedding API. This module defines a tiny `Embedder`
-Protocol plus three reference implementations:
+Protocol plus four reference implementations:
 
   * ``default`` — uses ChromaDB's bundled all-MiniLM-L6-v2 (fully offline).
-  * ``openai`` — OpenAI / Azure-OpenAI compatible endpoint.
-  * ``ollama`` — local Ollama server (offline; recommended for on-prem).
+  * ``openai``  — OpenAI / Azure-OpenAI / OpenAI-compatible endpoint.
+  * ``ollama``  — local Ollama server (offline; recommended for on-prem).
+  * ``voyage``  — Voyage AI (high-quality commercial embedder).
 
 Operators select an implementation via env vars (see ``Config``). The store
 constructor accepts the resulting Embedder; tools never touch this module.
@@ -104,6 +105,41 @@ class OllamaEmbedder:
         return out
 
 
+class VoyageEmbedder:
+    """Voyage AI embedder (https://docs.voyageai.com/).
+
+    Higher retrieval quality than the OpenAI small models on most benchmarks.
+    Requires VOYAGE_API_KEY (or RECALL_EMBED_API_KEY).
+    """
+
+    name = "voyage"
+
+    def __init__(self, model: str, api_key: str) -> None:
+        try:
+            import httpx  # type: ignore[import-not-found]
+        except ImportError as e:
+            raise RuntimeError("RECALL_EMBEDDER=voyage requires `pip install httpx`") from e
+        if not api_key:
+            raise RuntimeError("RECALL_EMBEDDER=voyage requires VOYAGE_API_KEY or RECALL_EMBED_API_KEY")
+        self._httpx = httpx
+        self._model = model
+        self._api_key = api_key
+        log.info("VoyageEmbedder ready. model=%s", model)
+
+    def embed(self, texts: list[str]) -> list[list[float]]:
+        # Voyage API: POST https://api.voyageai.com/v1/embeddings
+        # Body: {"input": [...], "model": "..."}
+        # Response: {"data": [{"embedding": [...]}, ...]}
+        with self._httpx.Client(timeout=60.0) as client:
+            r = client.post(
+                "https://api.voyageai.com/v1/embeddings",
+                json={"input": texts, "model": self._model},
+                headers={"Authorization": f"Bearer {self._api_key}"},
+            )
+            r.raise_for_status()
+            return [d["embedding"] for d in r.json()["data"]]
+
+
 def make_embedder_from_env() -> Embedder:
     """Build an Embedder per env vars. Falls back to DefaultChromaEmbedder."""
     kind = os.environ.get("RECALL_EMBEDDER", "default").lower()
@@ -120,4 +156,11 @@ def make_embedder_from_env() -> Embedder:
             model=os.environ.get("RECALL_EMBED_MODEL", "nomic-embed-text"),
             endpoint=os.environ.get("RECALL_EMBED_ENDPOINT", "http://localhost:11434"),
         )
-    raise RuntimeError(f"Unknown RECALL_EMBEDDER='{kind}'. Use one of: default, openai, ollama.")
+    if kind == "voyage":
+        return VoyageEmbedder(
+            model=os.environ.get("RECALL_EMBED_MODEL", "voyage-3"),
+            api_key=os.environ.get("RECALL_EMBED_API_KEY") or os.environ.get("VOYAGE_API_KEY", ""),
+        )
+    raise RuntimeError(
+        f"Unknown RECALL_EMBEDDER='{kind}'. Use one of: default, openai, ollama, voyage."
+    )

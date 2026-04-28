@@ -1,4 +1,4 @@
-# @wbx-modified copilot-c4a1·MTN | 2026-04-23 | single-tenant Dockerfile | prev: NEW
+# @wbx-modified copilot-b1c4 | 2026-04-27 23:36 MTN | v0.3.3 | install [llm,mcp] so SSE + recall-mcp work | prev: copilot-a3f7@2026-04-26
 # syntax=docker/dockerfile:1.6
 #
 # Recall — single-tenant agent-memory MCP server.
@@ -6,7 +6,10 @@
 # Run:     docker run -p 8787:8787 -e API_KEY=secret -v recall-data:/data recall:latest
 # Health:  curl http://localhost:8787/health
 
-FROM python:3.14-slim AS base
+# Pinned to 3.12-slim: widest wheel coverage (chromadb, onnxruntime, etc.).
+# pyproject requires-python >=3.11, so 3.12 is in-band. Avoid 3.14 until upstream
+# wheel matrix catches up (was the cause of intermittent GHA build failures).
+FROM python:3.12-slim AS base
 
 # Install git for optional GIT_REPO_URL sync. Stay minimal otherwise.
 RUN apt-get update \
@@ -19,10 +22,11 @@ RUN useradd --create-home --uid 10001 --shell /bin/bash recall
 WORKDIR /app
 
 # ---- Dependency layer (cached when src/ changes but pyproject doesn't) ----
+# Pin pip and use --retries to ride through transient PyPI/index hiccups.
 COPY pyproject.toml README.md ./
 COPY src ./src
-RUN pip install --no-cache-dir --upgrade pip \
- && pip install --no-cache-dir .
+RUN pip install --no-cache-dir --upgrade "pip==24.2" \
+ && pip install --no-cache-dir --retries 5 --timeout 60 ".[llm,mcp]"
 
 # ---- Runtime layout ----
 # Ephemeral local store (ChromaDB SQLite — must NOT be on a network share).

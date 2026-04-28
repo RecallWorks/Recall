@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import hashlib
+import time
 from datetime import datetime
 
 from ..artifacts import persist_artifact
@@ -62,6 +63,7 @@ def checkpoint(
         "source": f"checkpoint/{session}",
         "chunk_index": 0,
         "indexed_at": ts,
+        "indexed_at_epoch": time.time(),
         "type": "checkpoint",
         "domain": domain or "general",
         "session": session,
