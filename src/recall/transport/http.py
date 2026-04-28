@@ -1,4 +1,4 @@
-# @wbx-modified copilot-b1c4 | 2026-04-27 19:30 MTN | v1.1 | structured envelope for recall + recall_filtered (port from server-azure v29.4) | prev: copilot-c4a1@2026-04-23
+# @wbx-modified copilot-b1c4 | 2026-04-28 04:42 MTN | v1.2 | added Pro license gate (recall_filtered, backfill_epoch, chunk-cap on writes) | prev: copilot-b1c4@2026-04-27 19:30 MTN
 """Plain HTTP transport — POST /tool/{name} with JSON body.
 
 Used by browser-side UIs and any non-MCP client. Auth is enforced by the
@@ -12,6 +12,7 @@ import logging
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
+from ..license import LicenseError, OSS_LICENSE, require_chunk_capacity, require_for_tool
 from ..store import is_ready
 from ..tools import TOOL_REGISTRY
 from ..tools.recall import _recall_structured
@@ -26,6 +27,11 @@ _STRUCTURED_TOOLS = {
     "recall": _recall_structured,
     "recall_filtered": _recall_filtered_structured,
 }
+
+# Tools that grow chunk count — must check OSS chunk cap before running.
+_WRITE_TOOLS: frozenset[str] = frozenset(
+    {"remember", "reflect", "checkpoint", "anti_pattern", "index_file", "reindex"}
+)
 
 
 async def health_handler(request: Request) -> JSONResponse:
@@ -63,6 +69,18 @@ async def tool_handler(request: Request) -> JSONResponse:
         return JSONResponse(
             {"error": "store still warming up, try again shortly"},
             status_code=503,
+        )
+    lic = getattr(request.app.state, "license", OSS_LICENSE)
+    try:
+        require_for_tool(lic, name)
+        if name in _WRITE_TOOLS:
+            from ..store import get_store
+
+            require_chunk_capacity(lic, get_store().count())
+    except LicenseError as e:
+        return JSONResponse(
+            {"error": str(e), "upgrade": "https://recall.works/pricing"},
+            status_code=402,
         )
     try:
         args = await request.json()

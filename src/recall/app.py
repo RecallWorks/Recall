@@ -1,4 +1,4 @@
-# @wbx-modified copilot-b1c4 | 2026-04-27 23:30 MTN | v0.3.3 | mount MCP /sse + /mcp routes | prev: copilot-c4a1@2026-04-23
+# @wbx-modified copilot-b1c4 | 2026-04-28 04:40 MTN | v0.3.4 | wired license loader + Pro gate via app.state.license | prev: copilot-b1c4@2026-04-27 23:30 MTN
 """Application entry point.
 
 Builds a Starlette app with:
@@ -25,6 +25,7 @@ from .auth import ApiKeyAuthMiddleware
 from .config import Config
 from .embedder import make_embedder_from_env
 from .git_sync import git_sync, resolve_index_paths
+from .license import load_from_env as load_license
 from .store import init_store
 from .summarizer import init_summarizer, make_summarizer_from_env
 from .tools import TOOL_REGISTRY  # noqa: F401  (ensure registry assembled at import)
@@ -142,6 +143,7 @@ def build_app(cfg: Config | None = None, *, start_background: bool = True) -> St
 
     app = Starlette(routes=routes)
     app.state.config = cfg
+    app.state.license = load_license()
     app.add_middleware(ApiKeyAuthMiddleware, api_keys=cfg.api_keys)
 
     if start_background:
