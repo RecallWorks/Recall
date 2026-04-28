@@ -207,7 +207,10 @@ def answer(
     On error returns a JSON string with an "error" key (HTTP transport
     still returns 200 — the caller inspects the JSON).
     """
-    cfg = config or _default_config()
+    if config is not None:
+        set_config(config)
+    else:
+        _default_config()
     store = get_store()
     if not question or not question.strip():
         return json.dumps({"error": "question is required"})
