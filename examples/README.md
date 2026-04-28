@@ -16,7 +16,7 @@ docker run -d --name recall -p 8787:8787 -e API_KEY=changeme \
 ## Run a Python example
 
 ```bash
-pip install recall-client
+pip install requests
 python examples/python/agent_memory.py
 ```
 

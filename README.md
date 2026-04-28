@@ -1,4 +1,4 @@
-<!-- @wbx-modified copilot-b1c4 | 2026-04-27 23:58 MTN | v0.3.3 | added ™ to H1 brand | prev: copilot-a3f7@2026-04-24 -->
+<!-- @wbx-modified copilot-b1c4 | 2026-04-28 03:35 MTN | v0.3.4 | replaced deleted recall-client with ai-recallworks; Python uses requests until SDK pkg name resolved | prev: copilot-b1c4@2026-04-27 23:58 MTN -->
 <div align="center">
 
 # Recall&trade;
@@ -7,7 +7,7 @@
 
 [![Tests](https://github.com/RecallWorks/Recall/actions/workflows/test.yml/badge.svg)](https://github.com/RecallWorks/Recall/actions/workflows/test.yml)
 [![Docker](https://github.com/RecallWorks/Recall/actions/workflows/docker.yml/badge.svg)](https://github.com/RecallWorks/Recall/actions/workflows/docker.yml)
-[![PyPI](https://img.shields.io/pypi/v/recall-client?label=pypi%3A%20recall-client&logo=pypi&logoColor=white)](https://pypi.org/project/recall-client/)
+[![PyPI](https://img.shields.io/pypi/v/ai-recallworks?label=pypi%3A%20ai-recallworks&logo=pypi&logoColor=white)](https://pypi.org/project/ai-recallworks/)
 [![npm](https://img.shields.io/npm/v/@recallworks/recall-client?label=npm%3A%20%40recallworks%2Frecall-client&logo=npm&logoColor=white)](https://www.npmjs.com/package/@recallworks/recall-client)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue?logo=python&logoColor=white)](pyproject.toml)
@@ -57,13 +57,13 @@ curl -H "X-API-Key: changeme" \
 ```
 
 ```python
-# Python
-pip install recall-client
-
-from recall_client import RecallClient
-with RecallClient("http://localhost:8787", api_key="changeme") as c:
-    c.remember("first memory", tags="hello")
-    print(c.recall("memory").result)
+# Python (use requests/httpx — no SDK pkg needed)
+import requests
+h = {"X-API-Key": "changeme", "Content-Type": "application/json"}
+requests.post("http://localhost:8787/tool/remember", headers=h,
+              json={"content": "first memory", "tags": "hello"})
+print(requests.post("http://localhost:8787/tool/recall", headers=h,
+                    json={"query": "memory"}).json()["result"])
 ```
 
 ```ts

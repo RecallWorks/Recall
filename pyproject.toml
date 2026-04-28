@@ -1,16 +1,16 @@
-# @wbx-modified copilot-b1c4 | 2026-04-27 23:35 MTN | v0.3.3 | bump for MCP stdio + SSE wiring + Voyage embedder | prev: copilot-a3f7@2026-04-26
+# @wbx-modified copilot-b1c4 | 2026-04-28 03:20 MTN | v0.3.3 | published as ai-recallworks (Steve's choice; passed PyPI similarity wall) | prev: copilot-b1c4@2026-04-28 03:10 MTN
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "recall"
+name = "ai-recallworks"
 version = "0.3.3"
 description = "Open-source agent-memory MCP server. recall.works"
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "MIT" }
-authors = [{ name = "Recall contributors" }]
+authors = [{ name = "ai-recallworks" }]
 keywords = ["mcp", "agent", "memory", "rag", "vector-store", "copilot"]
 classifiers = [
     "Development Status :: 3 - Alpha",
