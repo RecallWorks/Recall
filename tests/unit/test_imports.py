@@ -21,18 +21,26 @@ def test_top_level_imports():
 def test_tools_registry_has_fourteen_entries():
     from recall.tools import TOOL_REGISTRY, WRITE_TOOLS
 
-    # 13 originals + answer (2026-04-26) + recall_filtered + backfill_epoch (2026-04-27 b1c4).
-    assert len(TOOL_REGISTRY) == 16
+    # 13 originals + answer (2026-04-26) + recall_filtered + backfill_epoch
+    # (2026-04-27 b1c4) + 6 multi-agent coordination tools (2026-04-30 a3f7
+    # v0.5.0 wedge: claim/release/who_has/claims/handoff/pulse_others).
+    assert len(TOOL_REGISTRY) == 22
     assert "recall" in TOOL_REGISTRY
     assert "recall_filtered" in TOOL_REGISTRY
     assert "answer" in TOOL_REGISTRY
     assert "checkpoint" in TOOL_REGISTRY
     assert "snapshot_index" in TOOL_REGISTRY
     assert "backfill_epoch" in TOOL_REGISTRY
+    # Coordination tools
+    for t in ("claim", "release", "who_has", "claims", "handoff", "pulse_others"):
+        assert t in TOOL_REGISTRY, f"{t} missing from TOOL_REGISTRY"
     # forget is a write tool too — but per delete=archive guardrail it
     # archives, doesn't delete. Tracked separately below.
     assert "snapshot_index" in WRITE_TOOLS
     assert "backfill_epoch" in WRITE_TOOLS
+    assert "claim" in WRITE_TOOLS
+    assert "release" in WRITE_TOOLS
+    assert "handoff" in WRITE_TOOLS
 
 
 def test_config_from_env_requires_api_key(monkeypatch):

@@ -1,11 +1,11 @@
-# @wbx-modified copilot-b1c4 | 2026-04-28 04:00 MTN | v0.3.4 | bumped chromadb<2.0 (1.x has cp312 wheels, drops chroma-hnswlib build dep) | prev: copilot-b1c4@2026-04-28 03:20 MTN
+# @wbx-modified copilot-a3f7 | 2026-04-29 23:59 MTN | v0.4.0 | zero-config stdio (no API_KEY required, ~/.recall defaults) for VS Code MCP gallery + Claude Desktop one-shot install | prev: copilot-b1c4@2026-04-28 04:00 MTN
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
 name = "ai-recallworks"
-version = "0.3.4"
+version = "0.5.0"
 description = "Open-source agent-memory MCP server. recall.works"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -42,6 +42,41 @@ Source   = "https://github.com/recallworks/recall"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/recall"]
+
+[tool.hatch.build.targets.sdist]
+# Keep the sdist small. Ship source, tests, docs, and the build manifest —
+# nothing else. Without this, hatchling defaults to "everything not in
+# .gitignore" and silently pulls in ~68 MB of TypeScript node_modules +
+# ChromaDB eval databases.
+include = [
+    "src/recall/**/*.py",
+    "tests/**/*.py",
+    "docs/**/*.md",
+    "examples/**/*",
+    "README.md",
+    "LICENSE",
+    "LICENSE-COMMERCIAL.md",
+    "SECURITY.md",
+    "CITATION.cff",
+    "pyproject.toml",
+]
+exclude = [
+    "**/node_modules/**",
+    "**/__pycache__/**",
+    "**/*.pyc",
+    "**/.pytest_cache/**",
+    "**/.ruff_cache/**",
+    "**/dist/**",
+    "**/.git/**",
+    "tools/eval/**",
+    "data/**",
+    "_strategy/**",
+    "_counsel-packet/**",
+    "_pypi-support-request.md",
+    "response.txt",
+    ".tokens.local",
+    "*.bak-*",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

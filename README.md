@@ -1,9 +1,10 @@
-<!-- @wbx-modified copilot-b1c4 | 2026-04-28 03:35 MTN | v0.3.4 | replaced deleted recall-client with ai-recallworks; Python uses requests until SDK pkg name resolved | prev: copilot-b1c4@2026-04-27 23:58 MTN -->
+<!-- @wbx-modified copilot-a3f7 | 2026-04-30 01:25 MTN | v0.5.0 | repositioned around multi-agent coordination wedge (claim/release/handoff/who_has/pulse_others) | prev: copilot-a3f7@2026-04-29 23:59 MTN -->
 <div align="center">
 
 # Recall&trade;
 
-**Open-source memory for AI agents. MCP-native. Self-hosted. One Docker image.**
+**Memory + coordination for *multiple* AI agents working on the same codebase.**
+**MCP-native. Self-hosted. One Docker image.**
 
 [![Tests](https://github.com/RecallWorks/Recall/actions/workflows/test.yml/badge.svg)](https://github.com/RecallWorks/Recall/actions/workflows/test.yml)
 [![Docker](https://github.com/RecallWorks/Recall/actions/workflows/docker.yml/badge.svg)](https://github.com/RecallWorks/Recall/actions/workflows/docker.yml)
@@ -14,27 +15,121 @@
 [![MCP](https://img.shields.io/badge/MCP-compatible-7c3aed)](https://modelcontextprotocol.io)
 [![Container](https://img.shields.io/badge/ghcr.io-recallworks%2Frecall-2496ED?logo=docker&logoColor=white)](https://github.com/RecallWorks/Recall/pkgs/container/recall)
 
-[**OSS quickstart**](#five-minute-install) · [**Recall Pro →**](#recall-open-source-vs-recall-pro-vs-hosted) · [**Book a demo**](mailto:sales@recall.works?subject=Recall%20demo) · [**IceWhisperer for Encompass**](https://icewhisperer.ai)
+[**Why coordination?**](#why-coordination-the-wedge) · [**OSS quickstart**](#one-line-install-claude-desktop-vs-code-cursor) · [**Recall Pro →**](#recall-open-source-vs-recall-pro-vs-hosted) · [**Book a demo**](mailto:sales@recall.works?subject=Recall%20demo) · [**IceWhisperer for Encompass**](https://icewhisperer.ai)
 
 </div>
 
-> Your agent forgets every session. Recall fixes that — with a small,
-> opinionated memory surface that any MCP-speaking agent (or any HTTP
-> client) can drive. Append-only, rebuildable, soft-delete by design.
+> Most memory servers (mem0, Letta, Zep) optimize for **one agent across
+> many sessions**. Recall optimizes for **many agents in one session** —
+> the actual problem when you run two Copilot windows or two Claude
+> instances on the same monorepo and they clobber each other.
+>
+> Recall gives them shared memory **and** soft locks, handoffs, and a
+> live view of what the other agents are doing right now.
 
 ```text
-   ┌─────────────┐    MCP / HTTP    ┌──────────────────────────┐
-   │  AI agent   │ ───────────────► │  Recall (one container)  │
-   │  (Copilot,  │                  │   • 13 memory tools      │
-   │   Claude,   │  remember/recall │   • BYO embedder + LLM   │
-   │   Cursor,   │ ◄─────────────── │   • Append-only artifacts│
-   │   custom)   │                  │   • Auto-snapshot to disk│
-   └─────────────┘                  └──────────────────────────┘
+   ┌──────────────┐                           ┌──────────────┐
+   │  Agent a3f7  │      claim(file, ttl)     │  Agent b1c4  │
+   │  Claude #1   │ ───────────┐  ┌─────────► │  Claude #2   │
+   └──────┬───────┘            ▼  │           └──────┬───────┘
+          │              ┌────────┴───────┐          │
+          │   remember   │     Recall     │   pulse  │
+          ├────────────► │ • shared memory│ ◄────────┤
+          │              │ • claims/locks │          │
+          │   handoff    │ • handoffs     │  handoff │
+          ├────────────► │ • who_has      │ ◄────────┤
+          │              └────────────────┘          │
+          ▼                                          ▼
+       22 MCP tools — Copilot, Claude, Cursor, custom
 ```
 
 ---
 
-## Five-minute install
+## Why coordination? (The wedge)
+
+If you run a single AI agent, you don't have the problem Recall solves.
+The problem starts the moment you run **two**:
+
+- Two Copilot chat windows on the same repo, both editing `auth/`
+- A planner agent + an executor agent on the same task
+- Three Claude instances dividing up a refactor across folders
+- A `pre-commit` agent and a `code-review` agent racing on the same PR
+
+No memory tool today addresses this. They all assume one agent. Recall
+adds six MCP primitives that turn parallel agents from a clobber-fest
+into a coordinated team:
+
+| Tool                         | What it does                                                  |
+| ---------------------------- | ------------------------------------------------------------- |
+| `claim(resource, agent)`     | Soft-lock a file/table/URL with an auto-expiring TTL          |
+| `release(resource, agent)`   | Drop the lock (soft-archive — audit trail survives)           |
+| `who_has(resource)`          | "Is anyone editing `src/foo.py` right now?"                   |
+| `claims()`                   | All active locks across all agents                            |
+| `handoff(to_agent, ...)`     | Explicit work transfer with intent + files + context          |
+| `pulse_others(self_agent)`   | The N most recent checkpoints from agents *other than you*    |
+
+Claims are advisory (like git locks) — Recall doesn't physically stop
+a second agent from writing, but every well-behaved client checks first.
+TTLs prevent a crashed agent from freezing a resource forever. Releases
+soft-archive (per the project-wide delete=archive rule) so the audit
+trail of who held what when survives.
+
+Plus everything you'd expect from a memory server: 16 more tools for
+remember, recall, vector + filtered search, checkpoint, reflect,
+anti-pattern, snapshot, reindex, and stats. **22 MCP tools total.**
+
+### How is this different from mem0 / Letta / Zep?
+
+They're built for **one agent across sessions** ("remember what the user
+said last week"). Recall is built for **multiple agents in one session**
+("don't let agent B overwrite the function agent A is mid-refactoring").
+Different problem. Different primitives. Use both — they don't conflict.
+
+---
+
+## One-line install (Claude Desktop, VS Code, Cursor)
+
+Recall ships as a stdio MCP server. Zero config — no API keys, no Docker, no
+ports. Memory lives in `~/.recall/`.
+
+```bash
+pip install "ai-recallworks[mcp]"
+```
+
+Then add Recall to your MCP client config:
+
+**Claude Desktop** (`~/Library/Application Support/Claude/claude_desktop_config.json`
+on macOS, `%APPDATA%\Claude\claude_desktop_config.json` on Windows):
+
+```json
+{
+  "mcpServers": {
+    "recall": {
+      "command": "recall-mcp"
+    }
+  }
+}
+```
+
+**VS Code** (`mcp.json` in your workspace or user settings):
+
+```json
+{
+  "servers": {
+    "recall": {
+      "command": "recall-mcp"
+    }
+  }
+}
+```
+
+Restart the client. Your agent now has persistent memory across sessions.
+Embeddings run fully offline (Chroma's bundled all-MiniLM-L6-v2). Upgrade
+to Ollama / OpenAI / Voyage embeddings via env vars when you want.
+
+---
+
+## Five-minute install (HTTP / multi-user / team)
 
 **1. Run the server:**
 

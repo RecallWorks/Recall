@@ -1,4 +1,4 @@
-# @wbx-modified copilot-b1c4 | 2026-04-27 22:20 MTN | v1.0 | stdio MCP entry for Claude Desktop / Cursor / Cline | prev: NEW
+# @wbx-modified copilot-a3f7 | 2026-04-29 23:59 MTN | v1.1 | zero-config stdio: synthesize local API key if not set (VS Code MCP gallery / Claude Desktop one-shot install) | prev: copilot-b1c4@2026-04-27 22:20 MTN
 """Stdio MCP server entry point.
 
 This is what Claude Desktop, Cursor, Cline, Continue.dev, and other MCP
@@ -14,10 +14,13 @@ It composes the same Config, embedder, summarizer, and store as the HTTP
 server, then hands stdio to FastMCP.
 
 Environment variables (all optional — sensible defaults for local use):
-  RECALL_STORE_DIR     where to put SQLite + chroma (default: ~/.recall/store)
-  RECALL_COLLECTION    chroma collection name      (default: recall)
-  RECALL_EMBEDDER      'default' (offline) | 'openai' | 'voyage'
+  API_KEY              auth key for tool calls    (default: 'stdio-local' synthesized)
+  STORE_DIR            chroma + sqlite location   (default: ~/.recall/store)
+  ARTIFACTS_DIR        markdown notes location    (default: ~/.recall/artifacts)
+  COLLECTION_NAME      chroma collection name     (default: recall_memory)
+  RECALL_EMBEDDER      'default' (offline) | 'openai' | 'ollama' | 'voyage'
   OPENAI_API_KEY       required if RECALL_EMBEDDER=openai
+  VOYAGE_API_KEY       required if RECALL_EMBEDDER=voyage
 
 Note: stdio MCP servers MUST NOT print to stdout — that channel is the
 MCP transport. All logs go to stderr.
@@ -48,6 +51,9 @@ def main() -> None:
         checkpoint as _checkpoint_mod,
     )
     from .tools import (
+        coordinate as _coordinate_mod,
+    )
+    from .tools import (
         maintenance as _maintenance_mod,
     )
     from .tools import (
@@ -70,6 +76,22 @@ def main() -> None:
     )
     from .transport.mcp_sse import build_mcp_server
 
+    # Stdio is a single-user local subprocess launched by the MCP client
+    # (Claude Desktop, VS Code, Cursor, etc). There is no network exposure,
+    # so the HTTP API_KEY check is meaningless here. Synthesize a local-only
+    # key if the user hasn't set one, so first-run install is zero-config.
+    if not os.environ.get("API_KEY") and not os.environ.get("API_KEYS"):
+        os.environ["API_KEY"] = "stdio-local"
+        log.info("No API_KEY set; using stdio-local (single-user stdio mode)")
+
+    # Default store/artifacts to ~/.recall/ so they don't litter the cwd
+    # the MCP client happened to launch us from.
+    _home_recall = os.path.join(os.path.expanduser("~"), ".recall")
+    os.environ.setdefault("STORE_DIR", os.path.join(_home_recall, "store"))
+    os.environ.setdefault("ARTIFACTS_DIR", os.path.join(_home_recall, "artifacts"))
+    os.environ.setdefault("REPO_DIR", os.path.join(_home_recall, "repo"))
+    os.environ.setdefault("PREBUILT_DIR", os.path.join(_home_recall, "prebuilt-index"))
+
     cfg = Config.from_env()
 
     # Propagate config into tool modules (same as HTTP path)
@@ -81,6 +103,7 @@ def main() -> None:
         _stats_mod,
         _reflect_mod,
         _checkpoint_mod,
+        _coordinate_mod,
         _maintenance_mod,
     ):
         mod.set_config(cfg)

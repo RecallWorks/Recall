@@ -1,4 +1,4 @@
-# @wbx-modified copilot-b1c4 | 2026-04-27 19:30 MTN | v1.2 | added recall_filtered + backfill_epoch (port from server-azure v29.7) | prev: copilot-a3f7@2026-04-26 01:20
+# @wbx-modified copilot-a3f7 | 2026-04-30 00:58 MTN | v1.3 | added coordinate.* (claim/release/who_has/claims/handoff/pulse_others) for multi-agent wedge | prev: copilot-b1c4@2026-04-27 19:30 MTN
 """Tool modules. Each module exposes a single public callable named after
 the tool, plus an optional `register(mcp)` helper used by mcp_sse transport.
 
@@ -10,6 +10,7 @@ from __future__ import annotations
 from . import answer as _answer
 from . import backfill as _backfill
 from . import checkpoint as _checkpoint
+from . import coordinate as _coordinate
 from . import maintenance as _maintenance
 from . import recall as _recall
 from . import recall_filtered as _recall_filtered
@@ -35,6 +36,13 @@ TOOL_REGISTRY = {
     "maintenance": _maintenance.maintenance,
     "snapshot_index": _maintenance.snapshot_index,
     "backfill_epoch": _backfill.backfill_epoch,
+    # Multi-agent coordination (v0.5.0 wedge) ----------------------------
+    "claim": _coordinate.claim,
+    "release": _coordinate.release,
+    "who_has": _coordinate.who_has,
+    "claims": _coordinate.claims,
+    "handoff": _coordinate.handoff,
+    "pulse_others": _coordinate.pulse_others,
 }
 
 
@@ -50,4 +58,7 @@ WRITE_TOOLS = {
     "maintenance",
     "snapshot_index",
     "backfill_epoch",
+    "claim",
+    "release",
+    "handoff",
 }

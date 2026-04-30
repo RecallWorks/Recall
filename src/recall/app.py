@@ -30,6 +30,7 @@ from .store import init_store
 from .summarizer import init_summarizer, make_summarizer_from_env
 from .tools import TOOL_REGISTRY  # noqa: F401  (ensure registry assembled at import)
 from .tools import checkpoint as _checkpoint_mod
+from .tools import coordinate as _coordinate_mod
 from .tools import maintenance as _maintenance_mod
 from .tools import recall as _recall_mod
 from .tools import recall_filtered as _recall_filtered_mod
@@ -52,6 +53,7 @@ def _propagate_config(cfg: Config) -> None:
         _stats_mod,
         _reflect_mod,
         _checkpoint_mod,
+        _coordinate_mod,
         _maintenance_mod,
     ):
         mod.set_config(cfg)

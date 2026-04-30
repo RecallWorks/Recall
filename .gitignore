@@ -24,3 +24,13 @@ __pycache__/
 # counsel pre-brief packets (internal-only)
 _counsel-packet/
 
+# Operator-only / runtime / eval — should never be in a release build
+_pypi-support-request.md
+response.txt
+data/
+tools/eval/
+tools/Build-CounselPacket.ps1
+dist/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
