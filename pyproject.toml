@@ -1,11 +1,11 @@
-# @wbx-modified copilot-a3f7 | 2026-04-29 23:59 MTN | v0.4.0 | zero-config stdio (no API_KEY required, ~/.recall defaults) for VS Code MCP gallery + Claude Desktop one-shot install | prev: copilot-b1c4@2026-04-28 04:00 MTN
+# @wbx-modified copilot-a3f7 | 2026-04-30 01:30 MTN | v0.5.1 | bump for README republish (smooth-flow voice) + add mcp-name marker for MCP Registry | prev: copilot-a3f7@2026-04-29 23:59 MTN
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
 name = "ai-recallworks"
-version = "0.5.0"
+version = "0.5.1"
 description = "Open-source agent-memory MCP server. recall.works"
 readme = "README.md"
 requires-python = ">=3.11"

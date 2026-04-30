@@ -1,10 +1,11 @@
-<!-- @wbx-modified copilot-a3f7 | 2026-04-30 01:25 MTN | v0.5.0 | repositioned around multi-agent coordination wedge (claim/release/handoff/who_has/pulse_others) | prev: copilot-a3f7@2026-04-29 23:59 MTN -->
+<!-- @wbx-modified copilot-a3f7 | 2026-04-30 01:30 MTN | v0.5.5-readme | add mcp-name marker for MCP Registry namespace verify | prev: copilot-a3f7@2026-04-30 03:25 MTN -->
+<!-- mcp-name: io.github.recallworks/recall -->
 <div align="center">
 
 # Recall&trade;
 
-**Memory + coordination for *multiple* AI agents working on the same codebase.**
-**MCP-native. Self-hosted. One Docker image.**
+**A better memory server for AI agents — works for one, scales to many.**
+**Local, free, zero-config, MCP-native. Your data stays on your machine.**
 
 [![Tests](https://github.com/RecallWorks/Recall/actions/workflows/test.yml/badge.svg)](https://github.com/RecallWorks/Recall/actions/workflows/test.yml)
 [![Docker](https://github.com/RecallWorks/Recall/actions/workflows/docker.yml/badge.svg)](https://github.com/RecallWorks/Recall/actions/workflows/docker.yml)
@@ -15,17 +16,93 @@
 [![MCP](https://img.shields.io/badge/MCP-compatible-7c3aed)](https://modelcontextprotocol.io)
 [![Container](https://img.shields.io/badge/ghcr.io-recallworks%2Frecall-2496ED?logo=docker&logoColor=white)](https://github.com/RecallWorks/Recall/pkgs/container/recall)
 
-[**Why coordination?**](#why-coordination-the-wedge) · [**OSS quickstart**](#one-line-install-claude-desktop-vs-code-cursor) · [**Recall Pro →**](#recall-open-source-vs-recall-pro-vs-hosted) · [**Book a demo**](mailto:sales@recall.works?subject=Recall%20demo) · [**IceWhisperer for Encompass**](https://icewhisperer.ai)
+[**Quickstart**](#one-line-install-claude-desktop-vs-code-cursor) · [**vs. mem0/Letta/Zep**](#how-is-this-different-from-mem0--letta--zep) · [**Multi-agent**](#scaling-up-coordination-when-you-run-more-than-one-agent) · [**Recall Pro →**](#recall-open-source-vs-recall-pro-vs-hosted) · [**Book a demo**](mailto:sales@recall.works?subject=Recall%20demo)
 
 </div>
 
-> Most memory servers (mem0, Letta, Zep) optimize for **one agent across
-> many sessions**. Recall optimizes for **many agents in one session** —
-> the actual problem when you run two Copilot windows or two Claude
-> instances on the same monorepo and they clobber each other.
->
-> Recall gives them shared memory **and** soft locks, handoffs, and a
-> live view of what the other agents are doing right now.
+> Without a memory server, every Claude / Copilot / Cursor conversation
+> starts cold. You re-explain the codebase, the conventions, the
+> decisions, the gotchas — every time. Recall fixes that.
+
+## Start here: what Recall does for one developer, one AI
+
+Install it once, point your MCP client at it, and your AI now:
+
+- **Remembers across sessions** — "what did we decide about the auth
+  flow last week?" returns the actual decision, not a hallucination
+- **Indexes your code and docs** — `index_file` + `recall` = local
+  semantic RAG over your repo
+- **Cites where the answer came from** — `answer` returns text plus
+  the chunks it pulled from
+- **Builds project knowledge** — every `checkpoint`, `reflect`, and
+  `anti_pattern` becomes searchable later
+- **Survives restarts** — append-only artifacts on disk, vector store
+  rebuildable from them
+
+One `pip install`, one config block, done. No API key. No external
+service. No per-token bill. MIT license. **This is what 95% of users
+will ever use Recall for.**
+
+---
+
+## How is this different from mem0 / Letta / Zep?
+
+Recall does the same job they do — persistent memory across AI sessions,
+semantic recall, "remember what the user said last week." The difference
+is *where* and *how*:
+
+| | mem0 / Letta / Zep | Recall |
+|---|---|---|
+| **Where memory lives** | Their cloud | Your `~/.recall/` |
+| **API key required** | Yes | No |
+| **Cost** | Per-token / monthly SaaS | Free |
+| **Embeddings** | Their service | Local ONNX (offline) |
+| **Network calls** | Every recall | Zero |
+| **Air-gappable** | No | Yes |
+| **MCP-native** | Wrapper or SDK | Built on MCP |
+| **Multi-agent coordination** | None | 6 primitives |
+
+If you're happy paying a hosted memory provider per token, those are
+great products and you don't need Recall. If you'd rather your AI's
+memory live on your laptop or your own server, free and offline,
+that's what Recall is for.
+
+---
+
+## Scaling up: coordination when you run more than one agent
+
+The same install that gives one developer a personal AI memory also
+works as a **shared brain** when more than one agent talks to it. Two
+Copilot windows. A planner + executor pair. Three Claude instances
+dividing up a refactor. A `pre-commit` agent and a `code-review` agent
+on the same PR. They all `remember` and `recall` from the same store.
+
+That introduces a new problem none of the hosted memory services have
+even tried to solve: **agents stepping on each other.** Agent A starts
+refactoring `src/auth.py`. Agent B, in another window, rewrites the
+same file with no idea A is mid-edit. Whoever saves last wins. The
+other agent's work is gone.
+
+Recall ships six MCP primitives that turn parallel agents from a
+clobber-fest into a coordinated team:
+
+| Tool                         | What it does                                                  |
+| ---------------------------- | ------------------------------------------------------------- |
+| `claim(resource, agent)`     | Soft-lock a file/table/URL with an auto-expiring TTL          |
+| `release(resource, agent)`   | Drop the lock (soft-archive — audit trail survives)           |
+| `who_has(resource)`          | "Is anyone editing `src/foo.py` right now?"                   |
+| `claims()`                   | All active locks across all agents                            |
+| `handoff(to_agent, ...)`     | Explicit work transfer with intent + files + context          |
+| `pulse_others(self_agent)`   | The N most recent checkpoints from agents *other than you*    |
+
+Claims are advisory (like git locks) — Recall doesn't physically stop
+a second agent from writing, but every well-behaved client checks
+first. TTLs prevent a crashed agent from freezing a resource forever.
+Releases soft-archive (per the project-wide delete=archive rule) so
+the audit trail of who held what when survives.
+
+If you're a single user, these tools just sit there unused. If you
+ever scale up to multiple agents, they're already there.
 
 ```text
    ┌──────────────┐                           ┌──────────────┐
@@ -43,47 +120,8 @@
        22 MCP tools — Copilot, Claude, Cursor, custom
 ```
 
----
-
-## Why coordination? (The wedge)
-
-If you run a single AI agent, you don't have the problem Recall solves.
-The problem starts the moment you run **two**:
-
-- Two Copilot chat windows on the same repo, both editing `auth/`
-- A planner agent + an executor agent on the same task
-- Three Claude instances dividing up a refactor across folders
-- A `pre-commit` agent and a `code-review` agent racing on the same PR
-
-No memory tool today addresses this. They all assume one agent. Recall
-adds six MCP primitives that turn parallel agents from a clobber-fest
-into a coordinated team:
-
-| Tool                         | What it does                                                  |
-| ---------------------------- | ------------------------------------------------------------- |
-| `claim(resource, agent)`     | Soft-lock a file/table/URL with an auto-expiring TTL          |
-| `release(resource, agent)`   | Drop the lock (soft-archive — audit trail survives)           |
-| `who_has(resource)`          | "Is anyone editing `src/foo.py` right now?"                   |
-| `claims()`                   | All active locks across all agents                            |
-| `handoff(to_agent, ...)`     | Explicit work transfer with intent + files + context          |
-| `pulse_others(self_agent)`   | The N most recent checkpoints from agents *other than you*    |
-
-Claims are advisory (like git locks) — Recall doesn't physically stop
-a second agent from writing, but every well-behaved client checks first.
-TTLs prevent a crashed agent from freezing a resource forever. Releases
-soft-archive (per the project-wide delete=archive rule) so the audit
-trail of who held what when survives.
-
-Plus everything you'd expect from a memory server: 16 more tools for
-remember, recall, vector + filtered search, checkpoint, reflect,
-anti-pattern, snapshot, reindex, and stats. **22 MCP tools total.**
-
-### How is this different from mem0 / Letta / Zep?
-
-They're built for **one agent across sessions** ("remember what the user
-said last week"). Recall is built for **multiple agents in one session**
-("don't let agent B overwrite the function agent A is mid-refactoring").
-Different problem. Different primitives. Use both — they don't conflict.
+**22 MCP tools total** — 16 memory tools every user gets, plus the 6
+coordination primitives that activate when you scale up.
 
 ---
 
