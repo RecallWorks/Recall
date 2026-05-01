@@ -9,7 +9,7 @@
 # Pinned to 3.12-slim: widest wheel coverage (chromadb, onnxruntime, etc.).
 # pyproject requires-python >=3.11, so 3.12 is in-band. Avoid 3.14 until upstream
 # wheel matrix catches up (was the cause of intermittent GHA build failures).
-FROM python:3.12-slim AS base
+FROM python:3.14-slim AS base
 
 # Install git for optional GIT_REPO_URL sync. Stay minimal otherwise.
 RUN apt-get update \
