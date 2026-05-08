@@ -1,0 +1,109 @@
+<!doctype html>
+<!-- @recall.works/site | pillars.html | v1.4 | 2026-05-08 | consolidated to RecallWorks/Recall canonical home; URL refs updated | prev: v1.3 -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Six pillars · Recall™ Agent OS</title>
+<link rel="stylesheet" href="assets/site.css">
+<meta name="description" content="The six pillars of an Agent OS: durable brain, tiered memory, cold-start protocol, anti-pattern recall, MCP-native tooling, hardware honesty.">
+<link rel="canonical" href="https://recall.works/pillars.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="recall.works">
+<meta property="og:title" content="Six pillars · Recall™ Agent OS">
+<meta property="og:description" content="The six pillars of an Agent OS: durable brain, tiered memory, cold-start protocol, anti-pattern recall, MCP-native tooling, hardware honesty.">
+<meta property="og:url" content="https://recall.works/pillars.html">
+<meta property="og:image" content="https://recall.works/assets/og-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@mtgtechusa">
+<meta name="twitter:title" content="Six pillars · Recall™ Agent OS">
+<meta name="twitter:description" content="The six pillars of an Agent OS: durable brain, tiered memory, cold-start protocol, anti-pattern recall, MCP-native tooling, hardware honesty.">
+<meta name="twitter:image" content="https://recall.works/assets/og-card.png">
+</head>
+<body>
+
+<header class="topnav">
+  <div class="topnav-inner">
+    <a class="logo" href="index.html">Recall<sup>™</sup></a>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="whitepaper.html">Whitepaper</a>
+      <a href="pillars.html" class="active">Pillars</a>
+      <a href="architecture.html">Architecture</a>
+      <a href="brain.html">Brain</a>
+      <a href="hardware.html">Hardware</a>
+      <a href="comparison.html">Compare</a>
+      <a href="quickstart.html">Quickstart</a>
+      <a href="https://github.com/RecallWorks/Recall">GitHub &rarr;</a>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap">
+
+<header class="page-header">
+  <div class="eyebrow">the architecture</div>
+  <h1>Six <span class="accent">pillars</span></h1>
+  <p class="lede">Six composable pieces. None of them load-bearing alone. The integration is the point. This is documentation of what worked through mid-2026 — sharing it as knowledge to pass on, with the honest expectation that parts of it will be obsolete a year from now as the AI tooling landscape moves.</p>
+</header>
+
+<section>
+  <h2>Pillar grid</h2>
+  <div class="pillars">
+    <div class="pillar">
+      <span class="tag">Memory</span>
+      <h3>Tiered, durable, agent-readable</h3>
+      <p>User memory auto-loads every turn (~200 lines, ~30KB). Reference memory loads on demand. Session memory is scratch. Repo memory holds verified facts. A semantic vector brain handles fuzzy recall across tens of thousands of chunks.</p>
+    </div>
+    <div class="pillar">
+      <span class="tag">Local compute</span>
+      <h3>Zero-cost compression and distillation</h3>
+      <p>A local open-weights model on a consumer GPU compresses verbose memory, distills brain recalls, generates cold-start briefs, and writes rolling summaries that pre-empt host-side compaction — all without spending a token of paid context. The expensive model thinks; the free model summarizes.</p>
+    </div>
+    <div class="pillar">
+      <span class="tag">Vault</span>
+      <h3>WORM-immutable backup, 7-year retention</h3>
+      <p>Nightly object-storage sync of every workspace byte. Time-based immutability blocks any delete, overwrite, even with the master key. Cool tier auto-tiers to Archive after 30 days. ~200 GB stored at well under a dollar a month.</p>
+    </div>
+    <div class="pillar">
+      <span class="tag">Guardrails</span>
+      <h3>Three layers, fail-closed</h3>
+      <p>Kill-switch sentinel + spend-gate script + cloud budget alert. Every billable script must clear all three before touching money. Default ceiling configurable. Failure mode = abort, never silently overspend.</p>
+    </div>
+    <div class="pillar">
+      <span class="tag">Brain backup</span>
+      <h3>Two cloud copies + one sealed local</h3>
+      <p>Weekly snapshot to <code>vault/brain/</code>. Two newest kept hot. Plus a sealed <code>.SEALED.zip</code> on local disk with sentinel files preventing the agent from mistaking it for live data. Restoration: rename + expand, three steps.</p>
+    </div>
+    <div class="pillar">
+      <span class="tag">Continuity</span>
+      <h3>Cold-start in 60 seconds</h3>
+      <p>Per-session journals + a one-line audit trail + the local-model distiller produce a ~3KB curated brief on demand. The successor agent reads it instead of guessing from a lossy auto-summary. Context survives compaction, restart, model swap.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>How they compose</h2>
+  <p>Each pillar can run alone — but the leverage comes from the combination:</p>
+  <ul style="color:var(--text-dim);font-size:14px;line-height:1.8;padding-left:22px">
+    <li><strong style="color:var(--text)">Memory + Continuity</strong> means the next session knows what this one decided.</li>
+    <li><strong style="color:var(--text)">Local compute + Memory</strong> means memory stays compressed and queryable without burning paid context.</li>
+    <li><strong style="color:var(--text)">Vault + Brain backup</strong> means every byte the agent ever touched is restorable for seven years.</li>
+    <li><strong style="color:var(--text)">Guardrails + everything</strong> means none of the above can run away with your wallet.</li>
+  </ul>
+  <p style="margin-top:24px">For the architecture diagrams of how the pieces wire together, see the <a href="architecture.html">architecture page</a>. For an honest take on what each profile of hardware actually needs, see <a href="hardware.html">hardware reality</a>.</p>
+</section>
+
+<footer class="site-footer">
+  <div class="meta">
+    <div><strong>Next:</strong> <a href="architecture.html">Architecture &rarr;</a></div>
+    <div><strong>Or:</strong> <a href="quickstart.html">Quickstart</a></div>
+  </div>
+</footer>
+
+</div>
+</body>
+</html>

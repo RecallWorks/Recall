@@ -1,0 +1,235 @@
+<!doctype html>
+<!-- @recall.works/site | architecture.html | v1.3 | 2026-05-08 | consolidated to RecallWorks/Recall canonical home; URL refs updated | prev: v1.2 -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Architecture · Recall™ Agent OS</title>
+<link rel="stylesheet" href="assets/site.css">
+<meta name="description" content="How the Recall Agent OS works end-to-end: tiered file memory, MCP brain server, cold-start protocol, and the networked-agents pattern that scales it.">
+<link rel="canonical" href="https://recall.works/architecture.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="recall.works">
+<meta property="og:title" content="Architecture · Recall™ Agent OS">
+<meta property="og:description" content="How the Recall Agent OS works end-to-end: tiered file memory, MCP brain server, cold-start protocol, and the networked-agents pattern that scales it.">
+<meta property="og:url" content="https://recall.works/architecture.html">
+<meta property="og:image" content="https://recall.works/assets/og-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@mtgtechusa">
+<meta name="twitter:title" content="Architecture · Recall™ Agent OS">
+<meta name="twitter:description" content="How the Recall Agent OS works end-to-end: tiered file memory, MCP brain server, cold-start protocol, and the networked-agents pattern that scales it.">
+<meta name="twitter:image" content="https://recall.works/assets/og-card.png">
+</head>
+<body>
+
+<header class="topnav">
+  <div class="topnav-inner">
+    <a class="logo" href="index.html">Recall<sup>™</sup></a>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="whitepaper.html">Whitepaper</a>
+      <a href="pillars.html">Pillars</a>
+      <a href="architecture.html" class="active">Architecture</a>
+      <a href="brain.html">Brain</a>
+      <a href="hardware.html">Hardware</a>
+      <a href="comparison.html">Compare</a>
+      <a href="quickstart.html">Quickstart</a>
+      <a href="https://github.com/RecallWorks/Recall">GitHub &rarr;</a>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap">
+
+<header class="page-header">
+  <div class="eyebrow">how it wires together</div>
+  <h1><span class="accent">Architecture</span></h1>
+  <p class="lede">Hot / warm / cold context. A networked brain that scales from one workstation to a team. And the actual day-to-day choreography of a single working session.</p>
+</header>
+
+<section>
+  <h2>Architecture at a glance</h2>
+  <div class="arch">
+
+    <div class="arch-row">
+      <div class="arch-label">Hot context</div>
+      <div class="arch-cells">
+        <div class="cell">
+          <div class="name">User memory</div>
+          <div class="what">Auto-loaded every turn. Routing rules, preferences, audit-trail tail.</div>
+          <span class="where">/memories/*.md</span>
+        </div>
+        <div class="cell">
+          <div class="name">Session memory</div>
+          <div class="what">Per-conversation scratch. Cleared on close.</div>
+          <span class="where">/memories/session/</span>
+        </div>
+        <div class="cell">
+          <div class="name">Repo memory</div>
+          <div class="what">Codebase facts. Append-only, verified at write time.</div>
+          <span class="where">/memories/repo/</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="arch-row">
+      <div class="arch-label">Warm context</div>
+      <div class="arch-cells">
+        <div class="cell">
+          <div class="name">Reference memory</div>
+          <div class="what">Loaded on routing trigger. Topic-scoped per project area. Listed but not auto-included.</div>
+          <span class="where">/memories/reference/</span>
+        </div>
+        <div class="cell">
+          <div class="name">Semantic brain</div>
+          <div class="what">Tens of thousands of chunks. Fuzzy recall across SDKs, documentation, prior work, and decisions.</div>
+          <span class="where">vector store · cloud-hosted</span>
+        </div>
+        <div class="cell">
+          <div class="name">Cold-start brief</div>
+          <div class="what">Local-model-distilled ~3KB summary of state files + last N audit rows + newest session journal.</div>
+          <span class="where">coldstart distiller</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="arch-row">
+      <div class="arch-label">Cold storage</div>
+      <div class="arch-cells">
+        <div class="cell">
+          <div class="name">Draft container</div>
+          <div class="what">Mutable working backup. 30-day soft-delete window. Versioning + change feed.</div>
+          <span class="where">object storage · Cool tier</span>
+        </div>
+        <div class="cell">
+          <div class="name">Vault container</div>
+          <div class="what">WORM-immutable 7yr. Snapshots, one-time promotes. Lifecycle to Archive at 30d.</div>
+          <span class="where">object storage · Archive tier</span>
+        </div>
+        <div class="cell">
+          <div class="name">Sealed local</div>
+          <div class="what">.SEALED.zip with DO-NOT-READ.txt sentinel + .gitignore. Agent searches skip it.</div>
+          <span class="where">_sealed-brain-backups/</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="arch-row">
+      <div class="arch-label">Guardrails</div>
+      <div class="arch-cells">
+        <div class="cell">
+          <div class="name">Kill switch</div>
+          <div class="what">Touch a sentinel file. All billable scripts abort exit 99 until removed.</div>
+          <span class="where">.qwen-killswitch</span>
+        </div>
+        <div class="cell">
+          <div class="name">Spend gate</div>
+          <div class="what">Checks cloud month-to-date spend vs ceiling before any billable op. Fail-closed.</div>
+          <span class="where">spend-gate.ps1</span>
+        </div>
+        <div class="cell">
+          <div class="name">Cloud budget</div>
+          <div class="what">Email alerts at 50% / 75% / 100% actual + 100% forecasted. Outside-in safety net.</div>
+          <span class="where">provider budgets API</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="arch-row">
+      <div class="arch-label">Discipline</div>
+      <div class="arch-cells">
+        <div class="cell">
+          <div class="name">Audit-trail</div>
+          <div class="what">Every session writes one row. Open / closed / locked status. Survives all compaction.</div>
+          <span class="where">audit-trail.md</span>
+        </div>
+        <div class="cell">
+          <div class="name">Session journals</div>
+          <div class="what">Per-session detail dossier. Concrete, dense, restorable. Archived when stale.</div>
+          <span class="where">REVIVAL-*.md</span>
+        </div>
+        <div class="cell">
+          <div class="name">Fix-at-root reflex</div>
+          <div class="what">Encoded rule: notice bug in shared infra → fix source first, never route around.</div>
+          <span class="where">fix-at-root-reflex.md</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<section id="networked">
+  <h2>Scaling beyond one workstation: the networked brain</h2>
+  <p>The pattern starts on a single workstation, but the semantic-brain pillar is designed to network. Run the brain as a containerized service exposing HTTP and Server-Sent Events, and any number of agents on any number of machines hit the same recall surface — no per-seat duplication of the corpus, no drift between team members, no re-embedding when a new agent joins.</p>
+  <div class="arch">
+    <div class="arch-row">
+      <div class="arch-label">Brain service</div>
+      <div class="arch-cells">
+        <div class="cell">
+          <div class="name">Frozen read collection</div>
+          <div class="what">Curated corpus baked into the image at build time. Sealed vector segment, fast queries, deterministic across deploys. Restart-safe.</div>
+          <span class="where">prebuilt-index/ in container</span>
+        </div>
+        <div class="cell">
+          <div class="name">Sidecar write collection</div>
+          <div class="what">Lazily created at first write in the same persistent client. Holds new memories, ad-hoc corpus loads, per-agent <code>remember()</code> calls. Always writable.</div>
+          <span class="where">side-collection · same DB file</span>
+        </div>
+        <div class="cell">
+          <div class="name">Merge at query time</div>
+          <div class="what">Each <code>recall()</code> queries both collections in parallel, merges by distance, returns top-N. Caller never sees the seam.</div>
+          <span class="where">recall.py merge layer</span>
+        </div>
+      </div>
+    </div>
+    <div class="arch-row">
+      <div class="arch-label">Multi-agent</div>
+      <div class="arch-cells">
+        <div class="cell">
+          <div class="name">Shared HTTP/SSE</div>
+          <div class="what">Multiple agents — same model or different — connect to one brain URL. Every <code>remember</code> by one agent is queryable by every other within seconds.</div>
+          <span class="where">/sse · /tool/recall · /tool/remember</span>
+        </div>
+        <div class="cell">
+          <div class="name">Coordination primitives</div>
+          <div class="what">Optional layer adds <code>claim()</code> / <code>release()</code> / <code>handoff()</code> / <code>pulse_others()</code> so agents don't step on each other on a shared task.</div>
+          <span class="where">multi-agent coord wedge</span>
+        </div>
+        <div class="cell">
+          <div class="name">Audit-trail still wins</div>
+          <div class="what">Even with a shared brain, the canonical decision log is the per-repo audit-trail. Brain is for fuzzy recall; audit-trail is for ground truth.</div>
+          <span class="where">audit-trail.md (per workspace)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p style="font-size:13px;color:var(--text-faint);margin-top:14px">This is how the same architecture scales from "one developer, one machine, one Copilot" to "a team of humans + agents working a multi-month codebase together" without redesigning anything below the brain layer.</p>
+</section>
+
+<section>
+  <h2>How a session actually runs</h2>
+  <div class="flow">
+    <ol>
+      <li><strong>Trigger.</strong> User types a routing keyword. Agent loads scoped memory, runs brain pulse, fetches latest revival doc.</li>
+      <li><strong>Work.</strong> Edits, searches, runs commands, calls scripts. Branding stamp + version bump on every touched file.</li>
+      <li><strong>Checkpoint.</strong> Every ~5 exchanges, brain checkpoint. Discoveries written to durable memory immediately, not "noted for later."</li>
+      <li><strong>Touched-folder log.</strong> Anything outside the workspace gets registered so the next backup grabs it.</li>
+      <li><strong>Close.</strong> Audit-trail row + REVIVAL doc + brain remember(). Session memory archived.</li>
+      <li><strong>Overnight.</strong> Scheduled tasks run vault sync, weekly brain snapshot, and rolling-window memory archive — all gated by spend-gate.</li>
+    </ol>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="meta">
+    <div><strong>Next:</strong> <a href="hardware.html">Hardware reality &rarr;</a></div>
+    <div><strong>Or:</strong> <a href="quickstart.html">Quickstart</a></div>
+  </div>
+</footer>
+
+</div>
+</body>
+</html>

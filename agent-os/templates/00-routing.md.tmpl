@@ -1,0 +1,38 @@
+# 00-routing.md — what to load, when
+
+This is the entry point your agent reads at the start of every conversation.
+It is intentionally short. Anything longer than ~200 lines belongs in a
+reference file under `/memories/reference/<topic>/`.
+
+## Triggers
+
+When the user mentions the keywords below, the agent loads the indicated files
+BEFORE responding to anything else.
+
+| Trigger phrase            | Load                                                     |
+|---------------------------|----------------------------------------------------------|
+| `<your-project-keyword>`  | `tree-profile.md`, `01-preflight.md`, `03-preferences.md` |
+| `rule:` / `vision:` (first word) | Append the line to `vision.md` and brain BEFORE replying |
+| (any other trigger)       | (your conventions here)                                  |
+
+## Cold-start protocol
+
+1. Read this file.
+2. Read `01-preflight.md` for any per-machine setup checks.
+3. Read `05-audit-trail.md` and pull the last 5-8 OPEN sessions.
+4. Run `bin/qwen-coldstart.ps1 -Save` to generate `_coldstart-brief.md`
+   from current memory + newest revival doc.
+5. Read `_coldstart-brief.md`.
+6. (Optional) Pulse the brain: `recall("last session context")`.
+
+## Memory layout
+
+- `/memories/*.md` — ACTIVE. Top of context every turn. Keep tight.
+- `/memories/session/*.md` — current chat scratch.
+- `/memories/reference/*.md` — listed but not auto-loaded; read on demand.
+- `/memories/archive/*.md` — cold storage (compressed audit-trail rows, closed sessions).
+
+## Address conventions
+
+Replace this line with how the user wants to be addressed.
+e.g. "Always address user as `<First Name>`. Never `<other thing>`."

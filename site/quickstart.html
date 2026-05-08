@@ -1,0 +1,217 @@
+<!doctype html>
+<!-- @recall.works/site | quickstart.html | v1.3 | 2026-05-08 | consolidated to RecallWorks/Recall canonical home; URL refs updated | prev: v1.2 -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Quickstart · Recall™ Agent OS</title>
+<link rel="stylesheet" href="assets/site.css">
+<meta name="description" content="Get the Recall Agent OS running on your machine in an afternoon. Pinned ChromaDB + FastAPI brain image, bootstrap script, templates, no commitment.">
+<link rel="canonical" href="https://recall.works/quickstart.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="recall.works">
+<meta property="og:title" content="Quickstart · Recall™ Agent OS">
+<meta property="og:description" content="Get the Recall Agent OS running on your machine in an afternoon. Pinned ChromaDB + FastAPI brain image, bootstrap script, templates, no commitment.">
+<meta property="og:url" content="https://recall.works/quickstart.html">
+<meta property="og:image" content="https://recall.works/assets/og-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@mtgtechusa">
+<meta name="twitter:title" content="Quickstart · Recall™ Agent OS">
+<meta name="twitter:description" content="Get the Recall Agent OS running on your machine in an afternoon. Pinned ChromaDB + FastAPI brain image, bootstrap script, templates, no commitment.">
+<meta name="twitter:image" content="https://recall.works/assets/og-card.png">
+</head>
+<body>
+
+<header class="topnav">
+  <div class="topnav-inner">
+    <a class="logo" href="index.html">Recall<sup>™</sup></a>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="whitepaper.html">Whitepaper</a>
+      <a href="pillars.html">Pillars</a>
+      <a href="architecture.html">Architecture</a>
+      <a href="brain.html">Brain</a>
+      <a href="hardware.html">Hardware</a>
+      <a href="comparison.html">Compare</a>
+      <a href="quickstart.html" class="active">Quickstart</a>
+      <a href="https://github.com/RecallWorks/Recall">GitHub &rarr;</a>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap">
+
+<header class="page-header">
+  <div class="eyebrow">try it</div>
+  <h1><span class="accent">Quickstart</span></h1>
+  <p class="lede">Three commands sketch the cold-start protocol. The agent reconstructs working state from durable artifacts — no scrollback dive, no host summary required.</p>
+</header>
+
+<section>
+  <h2>The cold-start protocol</h2>
+  <pre class="code"><span class="c"># 1. Load routing rules + preferences (auto-loaded; this is the manual form)</span>
+Get-Content <span class="k">/memories/00-routing.md</span>
+
+<span class="c"># 2. Generate a curated cold-start brief — local model, ~60 sec, zero-cost</span>
+pwsh tools/<span class="k">qwen-coldstart.ps1</span>
+
+<span class="c"># 3. Read the latest session journal (compressed if &gt;24h old)</span>
+pwsh tools/<span class="k">latest-revival.ps1</span> -N 1</pre>
+  <p style="font-size:13px;color:var(--text-faint);margin-top:8px">Paths shown are from the reference implementation. Equivalent flows compose easily on macOS / Linux / any shell.</p>
+</section>
+
+<section>
+  <h2>Install the reference implementation</h2>
+  <p>The <a href="https://github.com/RecallWorks/Recall">reference repo</a> ships a self-contained scaffold: 9 PowerShell scripts, a brain container blueprint, 4 starter memory templates, an installer, and a config file you copy from <code>config.example.json</code> and fill in.</p>
+  <pre class="code"><span class="c"># Windows (PowerShell 7+)</span>
+git clone https://github.com/RecallWorks/Recall
+cd agent-os
+Copy-Item config.example.json config.json
+<span class="c"># edit config.json — workspaceId, storage account, ceiling</span>
+pwsh ./<span class="k">bootstrap.ps1</span>
+
+<span class="c"># macOS / Linux</span>
+git clone https://github.com/RecallWorks/Recall
+cd agent-os
+cp config.example.json config.json
+<span class="c"># edit config.json</span>
+./install.sh</pre>
+  <p style="font-size:13px;color:var(--text-faint);margin-top:8px">Bootstrap registers four scheduled tasks (vault sync nightly, vault promote weekly, brain snapshot weekly, rolling summary every 15 min), copies starter memory templates into your editor's memory dir, and runs the spend-gate self-test.</p>
+</section>
+
+<section>
+  <h2>What ships in the repo</h2>
+  <div class="arch">
+    <div class="arch-row">
+      <div class="arch-label">bin/</div>
+      <div class="arch-cells">
+        <div class="cell">
+          <div class="name">spend-gate.ps1</div>
+          <div class="what">Three-layer fail-closed cost gate. Kill switch, cooldown cache, MTD spend check.</div>
+          <span class="where">Layer 1 of 3</span>
+        </div>
+        <div class="cell">
+          <div class="name">vault-sync.ps1</div>
+          <div class="what">Nightly azcopy of workspace + memory + touched-folder log to draft container.</div>
+          <span class="where">Cool tier · 24h SAS</span>
+        </div>
+        <div class="cell">
+          <div class="name">vault-promote.ps1</div>
+          <div class="what">Weekly promote of stable draft contents into WORM-immutable vault.</div>
+          <span class="where">Archive tier · 7yr</span>
+        </div>
+        <div class="cell">
+          <div class="name">brain-snapshot.ps1</div>
+          <div class="what">Weekly snapshot of vector brain to vault. Two newest kept hot. Sealed local copy.</div>
+          <span class="where">vault/brain/</span>
+        </div>
+      </div>
+    </div>
+    <div class="arch-row">
+      <div class="arch-label">bin/ (cont.)</div>
+      <div class="arch-cells">
+        <div class="cell">
+          <div class="name">qwen-coldstart.ps1</div>
+          <div class="what">Curated ~3KB cold-start brief. State files + audit-trail tail + newest journal &rarr; local model.</div>
+          <span class="where">~60 sec, zero cost</span>
+        </div>
+        <div class="cell">
+          <div class="name">qwen-rolling-summary.ps1</div>
+          <div class="what">Every 15 min, summarize the active transcript before host compaction lands.</div>
+          <span class="where">/memories/session/*-rolling.md</span>
+        </div>
+        <div class="cell">
+          <div class="name">latest-revival.ps1</div>
+          <div class="what">Find the newest session journal. Auto-compress with local model if &gt;24h old.</div>
+          <span class="where">REVIVAL-*.md</span>
+        </div>
+        <div class="cell">
+          <div class="name">mark-touched.ps1</div>
+          <div class="what">Register an out-of-workspace folder so the next vault-sync grabs it.</div>
+          <span class="where">state/agent-touched-folders.log</span>
+        </div>
+      </div>
+    </div>
+    <div class="arch-row">
+      <div class="arch-label">templates/</div>
+      <div class="arch-cells">
+        <div class="cell">
+          <div class="name">00-routing.md.tmpl</div>
+          <div class="what">Routing triggers, cold-start protocol, memory layout. Copy into your /memories/ root.</div>
+          <span class="where">starter routing rules</span>
+        </div>
+        <div class="cell">
+          <div class="name">audit-trail.md.tmpl</div>
+          <div class="what">Format spec for the one-row-per-session decision log.</div>
+          <span class="where">| S-id | STATUS | summary |</span>
+        </div>
+        <div class="cell">
+          <div class="name">REVIVAL-template.md</div>
+          <div class="what">Standard layout for per-session detail journals.</div>
+          <span class="where">structured dossier</span>
+        </div>
+        <div class="cell">
+          <div class="name">fix-at-root-reflex.md.tmpl</div>
+          <div class="what">Encoded discipline rule: notice bug in shared infra &rarr; fix source first, never route around.</div>
+          <span class="where">discipline convention</span>
+        </div>
+      </div>
+    </div>
+    <div class="arch-row">
+      <div class="arch-label">brain/</div>
+      <div class="arch-cells">
+        <div class="cell">
+          <div class="name">Dockerfile</div>
+          <div class="what">Pinned ChromaDB + FastAPI + sentence-transformers image. Builds restart-safe brain service.</div>
+          <span class="where">recall.works/brain:v0.2</span>
+        </div>
+        <div class="cell">
+          <div class="name">docker-compose.yml</div>
+          <div class="what">Single-service compose. Named volume, port 8080, health probe.</div>
+          <span class="where">one-command spin-up</span>
+        </div>
+        <div class="cell">
+          <div class="name">recall.py</div>
+          <div class="what">v0.1 stub with /health endpoint. Full server is on the v0.2 roadmap.</div>
+          <span class="where">FastAPI + SSE</span>
+        </div>
+        <div class="cell">
+          <div class="name">agency_sidecar_patch.md</div>
+          <div class="what">Design note: frozen-read + writable-sidecar pattern, merge-by-distance at query time.</div>
+          <span class="where">architecture explainer</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Where this could matter</h2>
+  <p><strong>Long-running coding campaigns.</strong> When work spans weeks across many sessions and any detail loss costs hours of rediscovery.</p>
+  <p><strong>Regulated environments.</strong> WORM-immutable audit trail with cryptographic time-based retention. Every session, every decision, every command — restorable for 7 years.</p>
+  <p><strong>Multi-agent handoffs.</strong> When one agent finishes and a different model picks up. Curated brief + audit-trail + repo memory mean the receiving agent doesn't start cold.</p>
+  <p><strong>Cost-sensitive autonomy.</strong> When the agent has authority over billable resources. Three-layer fail-closed cost gate plus outside-in budget alert means autonomy without surprise bills.</p>
+</section>
+
+<section>
+  <h2>Where to go next</h2>
+  <div class="cta-row">
+    <a class="cta primary" href="https://github.com/RecallWorks/Recall">Get the code on GitHub &rarr;</a>
+    <a class="cta ghost" href="whitepaper.html">Read the full whitepaper</a>
+    <a class="cta ghost" href="architecture.html">Architecture diagrams</a>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="meta">
+    <div><strong>Recall™</strong> trademark application pending. Use the ™ designation in any republication.</div>
+    <div><strong>License:</strong> reference implementation is MIT. Whitepaper is shared freely. Attribution to <span style="color:var(--accent)">Recall™</span> appreciated.</div>
+    <div><strong>Site generated:</strong> 2026-05-07.</div>
+  </div>
+</footer>
+
+</div>
+</body>
+</html>

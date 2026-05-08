@@ -1,0 +1,36 @@
+version: "3.9"
+
+# Recall · Networked Brain — single-host compose
+#
+# Brings up the brain service on http://localhost:8080. Persistent vector
+# store lives in the named volume `recall-data` so container restarts don't
+# wipe state. To back it up, run bin/brain-snapshot.ps1 (it points at the
+# resolved volume mount path on disk).
+#
+# For multi-machine: put this behind your reverse proxy of choice (Caddy,
+# Traefik, an Azure Container App with ingress) and front it with mTLS or a
+# shared X-API-Key header. The originating implementation uses a single
+# shared API key per machine — SaaS-grade auth is deferred to v0.3.
+
+services:
+  brain:
+    build: .
+    image: recall.works/brain:v0.2
+    container_name: recall-brain
+    ports:
+      - "8080:8080"
+    environment:
+      - RECALL_PORT=8080
+      - RECALL_DATA=/data
+      # - RECALL_API_KEY=set-me-in-.env
+    volumes:
+      - recall-data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  recall-data:

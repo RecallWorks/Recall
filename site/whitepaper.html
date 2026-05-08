@@ -1,0 +1,419 @@
+<!doctype html>
+<!-- @recall.works/site | whitepaper.html | v1.4 | 2026-05-08 | consolidated to RecallWorks/Recall canonical home; URL refs updated | prev: v1.3 -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Recall · Agent OS — whitepaper</title>
+<link rel="stylesheet" href="assets/site.css">
+<meta name="description" content="Why agents forget, why that matters, and the open Agent OS pattern that fixes it. The Recall whitepaper: brain + tiered memory + cold-start protocol, vendor-neutral.">
+<link rel="canonical" href="https://recall.works/whitepaper.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="recall.works">
+<meta property="og:title" content="Recall™ Agent OS — whitepaper">
+<meta property="og:description" content="Why agents forget, why that matters, and the open Agent OS pattern that fixes it. The Recall whitepaper: brain + tiered memory + cold-start protocol, vendor-neutral.">
+<meta property="og:url" content="https://recall.works/whitepaper.html">
+<meta property="og:image" content="https://recall.works/assets/og-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@mtgtechusa">
+<meta name="twitter:title" content="Recall™ Agent OS — whitepaper">
+<meta name="twitter:description" content="Why agents forget, why that matters, and the open Agent OS pattern that fixes it. The Recall whitepaper: brain + tiered memory + cold-start protocol, vendor-neutral.">
+<meta name="twitter:image" content="https://recall.works/assets/og-card.png">
+</head>
+<body>
+
+<header class="topnav">
+  <div class="topnav-inner">
+    <a class="logo" href="index.html">Recall<sup>™</sup></a>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="whitepaper.html" class="active">Whitepaper</a>
+      <a href="pillars.html">Pillars</a>
+      <a href="architecture.html">Architecture</a>
+      <a href="brain.html">Brain</a>
+      <a href="hardware.html">Hardware</a>
+      <a href="comparison.html">Compare</a>
+      <a href="quickstart.html">Quickstart</a>
+      <a href="https://github.com/RecallWorks/Recall">GitHub &rarr;</a>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap">
+
+<header class="page-header">
+  <div class="brand">Recall<sup class="tm">™</sup></div>
+  <div class="eyebrow">an open reference architecture</div>
+  <h1>Agent <span class="accent">OS</span></h1>
+  <p class="lede">A persistent, cost-bounded, audit-grade environment for long-running AI coding work — where context survives sessions, costs can't run away, and every decision leaves a trail. Field-tested across months of real multi-session campaigns; published here as a whitepaper plus working reference implementation.</p>
+</header>
+
+<section>
+  <h2>What this is</h2>
+  <p><strong>A reference architecture, not a product.</strong> Six composable pillars, a small set of conventions, and ~600 lines of glue that turn any AI coding agent into a contractor with a project log instead of a goldfish.</p>
+  <p>The diagrams below describe the pattern. The code in the reference implementation is permissively licensed and was built around VS Code, GitHub Copilot Chat, an object-storage backend, and a local open-weights model on a consumer GPU — but nothing here is bound to those choices. Swap the host editor, swap the cloud, swap the local model. The pattern stands.</p>
+</section>
+
+<section>
+  <h2>The problem this solves</h2>
+  <p>Modern AI coding agents are stateless. Every conversation starts cold. Memory is what the host platform decides to keep. Costs are unbounded. Audit is whatever the chat transcript happens to retain. Multi-day campaigns degrade into "we already discussed this — read the scrollback" loops, until eventually the scrollback gets compacted by an opaque summarizer and detail vanishes.</p>
+  <p><strong>Agent OS treats the agent like a contractor who clocks in every day:</strong> they don't remember yesterday's work from their own head, they read the project log. The log lives on disk, in a vector brain, and in immutable cloud storage. The agent's <em>job</em> is to keep that log honest and to read it before acting.</p>
+</section>
+
+<section>
+  <h2>Six pillars</h2>
+  <div class="pillars">
+    <div class="pillar">
+      <span class="tag">Memory</span>
+      <h3>Tiered, durable, agent-readable</h3>
+      <p>User memory auto-loads every turn (~200 lines, ~30KB). Reference memory loads on demand. Session memory is scratch. Repo memory holds verified facts. A semantic vector brain handles fuzzy recall across tens of thousands of chunks.</p>
+    </div>
+    <div class="pillar">
+      <span class="tag">Local compute</span>
+      <h3>Zero-cost compression and distillation</h3>
+      <p>A local open-weights model on a consumer GPU compresses verbose memory, distills brain recalls, generates cold-start briefs, and writes rolling summaries that pre-empt host-side compaction — all without spending a token of paid context. The expensive model thinks; the free model summarizes.</p>
+    </div>
+    <div class="pillar">
+      <span class="tag">Vault</span>
+      <h3>WORM-immutable backup, 7-year retention</h3>
+      <p>Nightly object-storage sync of every workspace byte. Time-based immutability blocks any delete, overwrite, even with the master key. Cool tier auto-tiers to Archive after 30 days. ~200 GB stored at well under a dollar a month.</p>
+    </div>
+    <div class="pillar">
+      <span class="tag">Guardrails</span>
+      <h3>Three layers, fail-closed</h3>
+      <p>Kill-switch sentinel + spend-gate script + cloud budget alert. Every billable script must clear all three before touching money. Default ceiling configurable. Failure mode = abort, never silently overspend.</p>
+    </div>
+    <div class="pillar">
+      <span class="tag">Brain backup</span>
+      <h3>Two cloud copies + one sealed local</h3>
+      <p>Weekly snapshot to <code>vault/brain/</code>. Two newest kept hot. Plus a sealed <code>.SEALED.zip</code> on local disk with sentinel files preventing the agent from mistaking it for live data. Restoration: rename + expand, three steps.</p>
+    </div>
+    <div class="pillar">
+      <span class="tag">Continuity</span>
+      <h3>Cold-start in 60 seconds</h3>
+      <p>Per-session journals + a one-line audit trail + the local-model distiller produce a ~3KB curated brief on demand. The successor agent reads it instead of guessing from a lossy auto-summary. Context survives compaction, restart, model swap.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Architecture at a glance</h2>
+  <div class="arch">
+
+    <div class="arch-row">
+      <div class="arch-label">Hot context</div>
+      <div class="arch-cells">
+        <div class="cell">
+          <div class="name">User memory</div>
+          <div class="what">Auto-loaded every turn. Routing rules, preferences, audit-trail tail.</div>
+          <span class="where">/memories/*.md</span>
+        </div>
+        <div class="cell">
+          <div class="name">Session memory</div>
+          <div class="what">Per-conversation scratch. Cleared on close.</div>
+          <span class="where">/memories/session/</span>
+        </div>
+        <div class="cell">
+          <div class="name">Repo memory</div>
+          <div class="what">Codebase facts. Append-only, verified at write time.</div>
+          <span class="where">/memories/repo/</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="arch-row">
+      <div class="arch-label">Warm context</div>
+      <div class="arch-cells">
+        <div class="cell">
+          <div class="name">Reference memory</div>
+          <div class="what">Loaded on routing trigger. Topic-scoped per project area. Listed but not auto-included.</div>
+          <span class="where">/memories/reference/</span>
+        </div>
+        <div class="cell">
+          <div class="name">Semantic brain</div>
+          <div class="what">Tens of thousands of chunks. Fuzzy recall across SDKs, documentation, prior work, and decisions.</div>
+          <span class="where">vector store · cloud-hosted</span>
+        </div>
+        <div class="cell">
+          <div class="name">Cold-start brief</div>
+          <div class="what">Local-model-distilled ~3KB summary of state files + last N audit rows + newest session journal.</div>
+          <span class="where">coldstart distiller</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="arch-row">
+      <div class="arch-label">Cold storage</div>
+      <div class="arch-cells">
+        <div class="cell">
+          <div class="name">Draft container</div>
+          <div class="what">Mutable working backup. 30-day soft-delete window. Versioning + change feed.</div>
+          <span class="where">object storage · Cool tier</span>
+        </div>
+        <div class="cell">
+          <div class="name">Vault container</div>
+          <div class="what">WORM-immutable 7yr. Snapshots, one-time promotes. Lifecycle to Archive at 30d.</div>
+          <span class="where">object storage · Archive tier</span>
+        </div>
+        <div class="cell">
+          <div class="name">Sealed local</div>
+          <div class="what">.SEALED.zip with DO-NOT-READ.txt sentinel + .gitignore. Agent searches skip it.</div>
+          <span class="where">_sealed-brain-backups/</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="arch-row">
+      <div class="arch-label">Guardrails</div>
+      <div class="arch-cells">
+        <div class="cell">
+          <div class="name">Kill switch</div>
+          <div class="what">Touch a sentinel file. All billable scripts abort exit 99 until removed.</div>
+          <span class="where">.qwen-killswitch</span>
+        </div>
+        <div class="cell">
+          <div class="name">Spend gate</div>
+          <div class="what">Checks cloud month-to-date spend vs ceiling before any billable op. Fail-closed.</div>
+          <span class="where">spend-gate.ps1</span>
+        </div>
+        <div class="cell">
+          <div class="name">Cloud budget</div>
+          <div class="what">Email alerts at 50% / 75% / 100% actual + 100% forecasted. Outside-in safety net.</div>
+          <span class="where">provider budgets API</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="arch-row">
+      <div class="arch-label">Discipline</div>
+      <div class="arch-cells">
+        <div class="cell">
+          <div class="name">Audit-trail</div>
+          <div class="what">Every session writes one row. Open / closed / locked status. Survives all compaction.</div>
+          <span class="where">audit-trail.md</span>
+        </div>
+        <div class="cell">
+          <div class="name">Session journals</div>
+          <div class="what">Per-session detail dossier. Concrete, dense, restorable. Archived when stale.</div>
+          <span class="where">REVIVAL-*.md</span>
+        </div>
+        <div class="cell">
+          <div class="name">Fix-at-root reflex</div>
+          <div class="what">Encoded rule: notice bug in shared infra → fix source first, never route around.</div>
+          <span class="where">fix-at-root-reflex.md</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<section>
+  <h2>By the numbers</h2>
+  <div class="stats">
+    <div class="stat"><div class="num">&lt;$1</div><div class="lbl">Azure Blob storage</div></div>
+    <div class="stat"><div class="num">7 yr</div><div class="lbl">WORM retention</div></div>
+    <div class="stat"><div class="num">~3 KB</div><div class="lbl">Cold-start brief</div></div>
+    <div class="stat"><div class="num">3</div><div class="lbl">Independent fail-safes</div></div>
+  </div>
+</section>
+
+<section>
+  <h2>Hardware reality</h2>
+  <p>Honest version: the local-compute pillar carries weight, and "consumer GPU" hides a wide range. Here is what to expect at each profile. Everything else in Agent OS (memory tiers, vault, guardrails, audit-trail, continuity discipline) works on any machine that runs your editor.</p>
+  <table class="hw">
+    <thead>
+      <tr><th style="width:30%">Profile</th><th style="width:25%">Local model</th><th style="width:20%">Distill speed</th><th style="width:25%">Verdict</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="profile">Workstation, 16 GB+ VRAM<br><span style="font-weight:400;color:var(--text-faint);font-size:12px">RTX 4080/5080/5090, M3/M4 Max, similar</span></td>
+        <td>14B coder model, full quality</td>
+        <td>~3–15 sec / summary</td>
+        <td class="verdict good">Reference-implementation experience.</td>
+      </tr>
+      <tr>
+        <td class="profile">Mid-range laptop, 8 GB VRAM<br><span style="font-weight:400;color:var(--text-faint);font-size:12px">RTX 3060/4060, M2 Pro, etc.</span></td>
+        <td>7B coder model, q4 quantized</td>
+        <td>~10–30 sec / summary</td>
+        <td class="verdict warn">Workable. Summaries shorter, slightly noisier.</td>
+      </tr>
+      <tr>
+        <td class="profile">Integrated graphics<br><span style="font-weight:400;color:var(--text-faint);font-size:12px">no discrete GPU</span></td>
+        <td>3B model on CPU, or hosted small model</td>
+        <td>~30–90 sec / summary</td>
+        <td class="verdict warn">Slow but functional. Or skip local entirely and use a cheap hosted model — the spend gate keeps it bounded.</td>
+      </tr>
+      <tr>
+        <td class="profile">Phone-class compute</td>
+        <td>—</td>
+        <td>—</td>
+        <td class="verdict bad">Not the target. The pattern needs <em>some</em> available compute for distillation.</td>
+      </tr>
+    </tbody>
+  </table>
+  <p style="font-size:13px;color:var(--text-faint);margin-top:14px">The five non-compute pillars don't care about the GPU. If you can run an editor and reach object storage, you can run Memory + Vault + Guardrails + Brain backup + Continuity unchanged. Local compute is the cherry on top, not the load-bearing wall.</p>
+</section>
+
+<section>
+  <h2>Scaling beyond one workstation: the networked brain</h2>
+  <p>The pattern starts on a single workstation, but the semantic-brain pillar is designed to network. Run the brain as a containerized service exposing HTTP and Server-Sent Events, and any number of agents on any number of machines hit the same recall surface — no per-seat duplication of the corpus, no drift between team members, no re-embedding when a new agent joins.</p>
+  <div class="arch">
+    <div class="arch-row">
+      <div class="arch-label">Brain service</div>
+      <div class="arch-cells">
+        <div class="cell">
+          <div class="name">Frozen read collection</div>
+          <div class="what">Curated corpus baked into the image at build time. Sealed vector segment, fast queries, deterministic across deploys. Restart-safe.</div>
+          <span class="where">prebuilt-index/ in container</span>
+        </div>
+        <div class="cell">
+          <div class="name">Sidecar write collection</div>
+          <div class="what">Lazily created at first write in the same persistent client. Holds new memories, ad-hoc corpus loads, per-agent <code>remember()</code> calls. Always writable.</div>
+          <span class="where">side-collection · same DB file</span>
+        </div>
+        <div class="cell">
+          <div class="name">Merge at query time</div>
+          <div class="what">Each <code>recall()</code> queries both collections in parallel, merges by distance, returns top-N. Caller never sees the seam.</div>
+          <span class="where">recall.py merge layer</span>
+        </div>
+      </div>
+    </div>
+    <div class="arch-row">
+      <div class="arch-label">Multi-agent</div>
+      <div class="arch-cells">
+        <div class="cell">
+          <div class="name">Shared HTTP/SSE</div>
+          <div class="what">Multiple agents — same model or different — connect to one brain URL. Every <code>remember</code> by one agent is queryable by every other within seconds.</div>
+          <span class="where">/sse · /tool/recall · /tool/remember</span>
+        </div>
+        <div class="cell">
+          <div class="name">Coordination primitives</div>
+          <div class="what">Optional layer adds <code>claim()</code> / <code>release()</code> / <code>handoff()</code> / <code>pulse_others()</code> so agents don't step on each other on a shared task.</div>
+          <span class="where">multi-agent coord wedge</span>
+        </div>
+        <div class="cell">
+          <div class="name">Audit-trail still wins</div>
+          <div class="what">Even with a shared brain, the canonical decision log is the per-repo audit-trail. Brain is for fuzzy recall; audit-trail is for ground truth.</div>
+          <span class="where">audit-trail.md (per workspace)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p style="font-size:13px;color:var(--text-faint);margin-top:14px">This is how the same architecture scales from "one developer, one machine, one Copilot" to "a team of humans + agents working a multi-month codebase together" without redesigning anything below the brain layer.</p>
+</section>
+
+<section>
+  <h2>How a session actually runs</h2>
+  <div class="flow">
+    <ol>
+      <li><strong>Trigger.</strong> User types a routing keyword. Agent loads scoped memory, runs brain pulse, fetches latest revival doc.</li>
+      <li><strong>Work.</strong> Edits, searches, runs commands, calls scripts. Branding stamp + version bump on every touched file.</li>
+      <li><strong>Checkpoint.</strong> Every ~5 exchanges, brain checkpoint. Discoveries written to durable memory immediately, not "noted for later."</li>
+      <li><strong>Touched-folder log.</strong> Anything outside the workspace gets registered so the next backup grabs it.</li>
+      <li><strong>Close.</strong> Audit-trail row + REVIVAL doc + brain remember(). Session memory archived.</li>
+      <li><strong>Overnight.</strong> Scheduled tasks run vault sync, weekly brain snapshot, and rolling-window memory archive — all gated by spend-gate.</li>
+    </ol>
+  </div>
+</section>
+
+<section>
+  <h2>What it replaces</h2>
+  <div class="compare">
+    <div class="col before">
+      <h4>Default agent experience</h4>
+      <ul>
+        <li>Cold start every chat. "Read the scrollback."</li>
+        <li>Auto-compaction picks what survives. Lossy by surprise.</li>
+        <li>Chat-only memory. Disk reality drifts from agent reality.</li>
+        <li>No cost ceiling. Bug in a loop = morning email from billing.</li>
+        <li>Backups are someone else's job.</li>
+        <li>Audit = scrollback search.</li>
+      </ul>
+    </div>
+    <div class="col after">
+      <h4>Agent OS</h4>
+      <ul>
+        <li>Cold start reads a 3KB curated brief. Zero context loss.</li>
+        <li>Compaction can happen safely — durable memory survives it.</li>
+        <li>Memory tiers map to disk, vector brain, and immutable cloud.</li>
+        <li>Three-layer cost gate. Worst case = abort, never overspend.</li>
+        <li>Nightly azcopy + weekly brain snapshot + sealed local copy.</li>
+        <li>Audit-trail with one row per session. Always greppable.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>How this fits next to existing tools</h2>
+  <p>Plenty of good work exists in this space. Calling out the baselines so the contribution here is precise — Agent OS is the <em>combination</em>, not any one piece.</p>
+  <div class="base">
+    <div class="base-row">
+      <div class="base-name">GitHub Copilot Chat memory<br><span class="scope">tiered memory · per workspace</span></div>
+      <div class="base-note">The actual host platform behind the reference implementation. Provides the <em>memory tiers</em> Agent OS leans on. What's missing in the box: durable cold storage, cost gates, the discipline conventions, the local-model distillation.</div>
+    </div>
+    <div class="base-row">
+      <div class="base-name">Cursor · <code>.cursorrules</code><br><span class="scope">project-scoped instructions</span></div>
+      <div class="base-note">Solves <em>preference persistence</em> and routing. No durable journal, no audit trail, no cold-start protocol, no cost gates. Sits at the same tier as the routing rules in <code>/memories/</code>.</div>
+    </div>
+    <div class="base-row">
+      <div class="base-name">Cline / Roo Code<br><span class="scope">custom-instructions + agentic loops</span></div>
+      <div class="base-note">Strong on agentic tool use. Memory is per-conversation. Same gap as default Copilot: no durable layer between conversations, no cost gate, no immutable audit.</div>
+    </div>
+    <div class="base-row">
+      <div class="base-name">Aider · <code>.aider.chat.history</code><br><span class="scope">conversation log + git commits</span></div>
+      <div class="base-note">Audit-as-git is excellent — every change is a commit. Closest existing analog to the audit-trail pillar. Doesn't have the brain, the vault, or the cost gates.</div>
+    </div>
+    <div class="base-row">
+      <div class="base-name">Continue.dev<br><span class="scope">configurable IDE assistant</span></div>
+      <div class="base-note">Configurable model routing and context providers. Comparable to the routing layer. Memory and audit story is lighter; no cold-storage tier.</div>
+    </div>
+    <div class="base-row">
+      <div class="base-name">LangChain / LlamaIndex memory<br><span class="scope">programmatic memory abstractions</span></div>
+      <div class="base-note">Library-level building blocks for memory. You'd assemble <em>something like</em> the memory + brain pillars on top of these. Doesn't speak to discipline conventions or cost gates — that's outside their scope.</div>
+    </div>
+    <div class="base-row">
+      <div class="base-name">AutoGen · CrewAI · smol-agents<br><span class="scope">multi-agent orchestration</span></div>
+      <div class="base-note">Solves how agents coordinate <em>during</em> a session. Agent OS is concerned with what survives <em>between</em> sessions. Complementary, not competing — wire either of these on top of the brain layer for multi-agent.</div>
+    </div>
+  </div>
+  <p style="font-size:13px;color:var(--text-faint);margin-top:14px"><strong>What's distinctive here:</strong> the tiered-memory + WORM-vault + fail-closed cost gate + local-model distiller + networked brain — assembled and disciplined as one architecture, with conventions that keep the agent honest. Each individual pillar has prior art. The integration is the point.</p>
+</section>
+
+<section>
+  <h2>Try the cold-start protocol</h2>
+  <p>Three commands sketch the pattern. The agent reconstructs working state from durable artifacts — no scrollback dive, no host summary required:</p>
+  <pre class="code"><span class="c"># 1. Load routing rules + preferences (auto-loaded; this is the manual form)</span>
+Get-Content <span class="k">/memories/00-routing.md</span>
+
+<span class="c"># 2. Generate a curated cold-start brief — local model, ~60 sec, zero-cost</span>
+pwsh tools/<span class="k">qwen-coldstart.ps1</span>
+
+<span class="c"># 3. Read the latest session journal (compressed if &gt;24h old)</span>
+pwsh tools/<span class="k">latest-revival.ps1</span> -N 1</pre>
+  <p style="font-size:13px;color:var(--text-faint);margin-top:8px">Paths shown are from the reference implementation. Equivalent flows compose easily on macOS / Linux / any shell.</p>
+</section>
+
+<section>
+  <h2>Where this could matter</h2>
+  <p><strong>Long-running coding campaigns.</strong> When work spans weeks across many sessions and any detail loss costs hours of rediscovery.</p>
+  <p><strong>Regulated environments.</strong> WORM-immutable audit trail with cryptographic time-based retention. Every session, every decision, every command — restorable for 7 years.</p>
+  <p><strong>Multi-agent handoffs.</strong> When one agent finishes and a different model picks up. Curated brief + audit-trail + repo memory mean the receiving agent doesn't start cold.</p>
+  <p><strong>Cost-sensitive autonomy.</strong> When the agent has authority over billable resources. Three-layer fail-closed cost gate plus outside-in budget alert means autonomy without surprise bills.</p>
+</section>
+
+<footer class="site-footer">
+  <div class="meta">
+    <div><strong>Reference implementation:</strong> VS Code + GitHub Copilot Chat + an object-storage backend + a local open-weights model on a consumer GPU. Not bound to any of these — swap freely.</div>
+    <div><strong>License posture:</strong> open pattern. The whitepaper (this page) is shared freely; the reference implementation is permissively licensed. Attribution to <span style="color:var(--accent)">Recall™</span> appreciated.</div>
+    <div><strong>Recall™</strong> trademark application pending. Use the ™ designation in any republication; switch to ® once the registration is granted.</div>
+    <div><strong>Doc generated:</strong> 2026-05-07.</div>
+  </div>
+</footer>
+
+</div>
+</body>
+</html>

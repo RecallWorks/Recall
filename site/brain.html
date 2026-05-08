@@ -1,0 +1,208 @@
+<!doctype html>
+<!-- @recall.works/site | brain.html | v1.5 | 2026-05-08 | consolidated to RecallWorks/Recall canonical home; URL refs updated | prev: v1.4 -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The brain · Recall™ Agent OS</title>
+<link rel="stylesheet" href="assets/site.css">
+<meta name="description" content="The brain is a vector database fronted by an MCP server. One container, one URL. Connect any MCP-aware agent — Copilot, Claude Desktop, Cursor — and recall survives sessions.">
+<link rel="canonical" href="https://recall.works/brain.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="recall.works">
+<meta property="og:title" content="The brain · Recall™ Agent OS">
+<meta property="og:description" content="The brain is a vector database fronted by an MCP server. One container, one URL. Connect any MCP-aware agent — Copilot, Claude Desktop, Cursor — and recall survives sessions.">
+<meta property="og:url" content="https://recall.works/brain.html">
+<meta property="og:image" content="https://recall.works/assets/og-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@mtgtechusa">
+<meta name="twitter:title" content="The brain · Recall™ Agent OS">
+<meta name="twitter:description" content="The brain is a vector database fronted by an MCP server. One container, one URL. Connect any MCP-aware agent — Copilot, Claude Desktop, Cursor — and recall survives sessions.">
+<meta name="twitter:image" content="https://recall.works/assets/og-card.png">
+</head>
+<body>
+
+<header class="topnav">
+  <div class="topnav-inner">
+    <a class="logo" href="index.html">Recall<sup>™</sup></a>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="whitepaper.html">Whitepaper</a>
+      <a href="pillars.html">Pillars</a>
+      <a href="architecture.html">Architecture</a>
+      <a href="brain.html" class="active">Brain</a>
+      <a href="hardware.html">Hardware</a>
+      <a href="comparison.html">Compare</a>
+      <a href="quickstart.html">Quickstart</a>
+      <a href="https://github.com/RecallWorks/Recall">GitHub &rarr;</a>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap">
+
+<header class="page-header">
+  <div class="eyebrow">the long-term memory</div>
+  <h1>The <span class="accent">brain</span></h1>
+  <p class="lede">Tens of thousands of chunks of fuzzy-searchable knowledge the agent never has to load whole. The piece of Agent OS that turns "did we figure this out before?" into a sub-second answer.</p>
+</header>
+
+<section>
+  <h2>What it actually is</h2>
+  <p>A <strong>vector database fronted by an MCP server.</strong> Plain Python, plain HTTP, plain Server-Sent Events. The reference implementation runs <a href="https://www.trychroma.com/">Chroma</a> inside a small container; the MCP layer exposes a handful of tools the agent can call.</p>
+  <div class="pillars">
+    <div class="pillar">
+      <span class="tag">Storage</span>
+      <h3>Chroma vector DB</h3>
+      <p>One persistent client. A <em>frozen</em> read collection (curated corpus, baked into the image) plus a <em>sidecar</em> write collection (lazy-created at first <code>remember()</code>). Same DB file, no schema migration to add memories.</p>
+    </div>
+    <div class="pillar">
+      <span class="tag">Surface</span>
+      <h3>MCP server over HTTP/SSE</h3>
+      <p>One container, one URL, one auth header. Any MCP-aware agent can connect: VS Code, Claude Desktop, Cursor, custom harnesses. No per-seat database file. No drift between teammates.</p>
+    </div>
+    <div class="pillar">
+      <span class="tag">Hosting</span>
+      <h3>Local Docker or cloud container app</h3>
+      <p>Same image works on a laptop with <code>docker compose up</code> or in Azure Container Apps / Cloud Run / Fly / wherever. Persistent volume for the Chroma file is the only stateful piece.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>The tool surface</h2>
+  <p>The agent doesn't query SQL. It calls these like any other tool:</p>
+  <pre class="code"><span class="c"># fuzzy semantic recall across the whole corpus + every memory ever written</span>
+recall(query=<span class="k">"how does the auth refresh flow handle expired tokens"</span>, n=8)
+
+<span class="c"># write a durable memory; goes into the sidecar collection, queryable forever</span>
+remember(text=<span class="k">"index migration must run before the schema validator..."</span>,
+         source=<span class="k">"S-20260507-deploy-pipeline"</span>,
+         tags=[<span class="k">"deploy"</span>, <span class="k">"migrations"</span>])
+
+<span class="c"># lightweight liveness + recent-activity ping at session start</span>
+pulse()
+
+<span class="c"># save working state mid-session so the next agent can pick up</span>
+checkpoint(summary=<span class="k">"...short status..."</span>)
+
+<span class="c"># write a structured reflection after a thorny investigation</span>
+reflect(topic=<span class="k">"why the cache layer kept returning stale rows"</span>, lessons=[...])</pre>
+  <p style="font-size:13px;color:var(--text-faint);margin-top:8px">Exact tool names and signatures live in the reference repo. The shape stays the same across implementations: <em>read fuzzily, write durably, ping cheaply.</em></p>
+</section>
+
+<section>
+  <h2>What goes in it</h2>
+  <div class="arch">
+    <div class="arch-row">
+      <div class="arch-label">Curated corpus</div>
+      <div class="arch-cells">
+        <div class="cell">
+          <div class="name">Domain documentation</div>
+          <div class="what">SDK references, API specs, agency rule sets, forum scrapes — whatever the agent needs to answer questions in your domain without re-googling.</div>
+          <span class="where">frozen read collection</span>
+        </div>
+        <div class="cell">
+          <div class="name">Codebase chunks</div>
+          <div class="what">Optional. Code split into semantic chunks at build time so the agent can fuzzy-find prior implementations.</div>
+          <span class="where">frozen read collection</span>
+        </div>
+        <div class="cell">
+          <div class="name">External corpora</div>
+          <div class="what">Anything you ingest once and never touch again — RFCs, standards, vendor whitepapers, previous-employer documentation you're allowed to keep.</div>
+          <span class="where">frozen read collection</span>
+        </div>
+      </div>
+    </div>
+    <div class="arch-row">
+      <div class="arch-label">Live memory</div>
+      <div class="arch-cells">
+        <div class="cell">
+          <div class="name">Audit-trail rows</div>
+          <div class="what">Every closed session writes one row. Tagged with session id + topic. Becomes searchable history of every decision ever made.</div>
+          <span class="where">sidecar write collection</span>
+        </div>
+        <div class="cell">
+          <div class="name">Session journals</div>
+          <div class="what">Each REVIVAL doc gets ingested at close. The agent who picks up tomorrow can <code>recall("last time we touched X")</code> and get the dossier.</div>
+          <span class="where">sidecar write collection</span>
+        </div>
+        <div class="cell">
+          <div class="name">Ad-hoc <code>remember()</code> calls</div>
+          <div class="what">Whenever the agent finds something worth keeping mid-session — a gotcha, an anti-pattern, a pricing footgun — it lands here immediately.</div>
+          <span class="where">sidecar write collection</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>How it's different from <code>/memories/</code></h2>
+  <p>Both are persistent. Both survive between sessions. They serve different jobs:</p>
+  <table class="hw">
+    <thead>
+      <tr><th style="width:18%">&nbsp;</th><th style="width:41%">/memories/ files</th><th style="width:41%">The brain</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="profile">Access</td>
+        <td>Exact text. The agent grep's, reads, edits.</td>
+        <td>Fuzzy semantic. The agent asks a question, gets the closest N chunks back.</td>
+      </tr>
+      <tr>
+        <td class="profile">Size</td>
+        <td>Hundreds of KB. Hand-curated. Auto-loaded into context (the top tier).</td>
+        <td>Tens of thousands of chunks. Never loaded whole. Queried just-in-time.</td>
+      </tr>
+      <tr>
+        <td class="profile">Edit shape</td>
+        <td>The agent rewrites files in place. Diffs visible in git.</td>
+        <td>Append-only by convention. Old memories aren't deleted, just outvoted by newer relevant ones.</td>
+      </tr>
+      <tr>
+        <td class="profile">Job</td>
+        <td>"What do I always need to know?" — routing rules, preferences, top-of-mind facts.</td>
+        <td>"Has anyone seen this before?" — cross-session, cross-project, cross-domain recall.</td>
+      </tr>
+      <tr>
+        <td class="profile">Failure mode</td>
+        <td>Files get long. Agent gets distracted. Triage with the local-model compressor.</td>
+        <td>Stale memories slowly drift. Worst case = a recall pulls something that's a year out of date. The audit-trail in <code>/memories/</code> stays canonical.</td>
+      </tr>
+    </tbody>
+  </table>
+  <p style="font-size:13px;color:var(--text-faint);margin-top:14px">Rule of thumb: <em>if you'd want to load it every turn, it's a memory. If you want to recall it later, that's a brain entry. Memory is triage. Brain is the library.</em></p>
+</section>
+
+<section>
+  <h2>Networked pattern</h2>
+  <p>The brain is the only Agent OS pillar that's a service rather than a file pattern. That's deliberate. Once it's a service, every agent on every machine can hit the same recall surface — no per-seat duplication, no re-embedding, no drift between teammates.</p>
+  <p>The architecture detail of <em>how</em> a multi-agent setup shares one brain — frozen+sidecar merge at query time, coordination primitives, audit-trail-as-ground-truth — lives on the <a href="architecture.html#networked">architecture page</a>. This page is about <em>what's in</em> the brain. That page is about <em>how it scales</em>.</p>
+</section>
+
+<section>
+  <h2>Cost &amp; backup</h2>
+  <p>A small container app instance + a few hundred MB of vector data costs roughly <strong>$0.30/month</strong> in cloud compute on the documented setup. The vault pillar handles backup: weekly snapshot of the Chroma file to <code>vault/brain/</code>, two newest kept hot, plus a sealed local <code>.SEALED.zip</code> with sentinel files preventing the agent from mistaking it for live data.</p>
+  <p style="font-size:13px;color:var(--text-faint);margin-top:8px">Restoration is three steps: rename, expand, point the container at the restored volume. See <a href="architecture.html">architecture</a> for the cold-storage tier diagram and <a href="hardware.html">hardware reality</a> for the cost breakdown.</p>
+</section>
+
+<section>
+  <h2>Why this matters</h2>
+  <p>Without the brain, the agent's long-term memory is whatever fits in the auto-loaded files. That works for routing rules and preferences. It does not work for "we hit this exact bug eight months ago, here's what we tried, here's what finally worked."</p>
+  <p>With the brain, the agent walks into every session with access to every prior session's findings, every piece of vendor documentation you ever ingested, every anti-pattern you ever flagged. Cold-start stops being cold. Repeated mistakes stop repeating. The compounding effect is the entire reason this layer exists.</p>
+</section>
+
+<footer class="site-footer">
+  <div class="meta">
+    <div><strong>Next:</strong> <a href="architecture.html">Architecture &rarr;</a> for the diagrams.</div>
+    <div><strong>Or:</strong> <a href="quickstart.html">Quickstart</a> to stand one up.</div>
+    <div><strong>Reference impl:</strong> <a href="https://github.com/RecallWorks/Recall">github.com/RecallWorks/Recall</a> — Dockerfile, compose file, recall.py stub, sidecar patch notes.</div>
+  </div>
+</footer>
+
+</div>
+</body>
+</html>

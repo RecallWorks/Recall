@@ -1,0 +1,45 @@
+# OS / editor noise
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# Local config — never commit
+config.json
+.env
+.env.*
+!.env.example
+
+# Generated state
+state/
+logs/
+*.log
+*.bak
+*.bak-*
+.spend-gate-last
+.qwen-killswitch
+.vault-killswitch
+
+# Local model state
+ollama/
+*.gguf
+
+# Local-only secrets (paranoia layer)
+*.key
+*.pem
+*-key.txt
+.vault-key.txt
+
+# Sealed backups (never commit, never search)
+*.SEALED.zip
+_sealed-*/
+
+# Build / scratch
+_scratch/
+_build/
+node_modules/
+__pycache__/
+*.pyc

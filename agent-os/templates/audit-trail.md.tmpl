@@ -1,0 +1,34 @@
+# 05-audit-trail.md — durable session log
+
+Each row of the table below is one session. The row is written when a session
+closes or hits a meaningful checkpoint. Format is intentionally rigid so that
+`bin/qwen-coldstart.ps1` can parse it without ambiguity.
+
+## Format
+
+`| S-id | STATUS | agent. one-line summary. |`
+
+- **S-id**: `S-YYYYMMDD-<short-tag>` (e.g. `S-20260507-vault-fullscope`).
+- **STATUS**: one of `OPEN`, `CLOSED`, `BLOCKED`, `SUPERSEDED`, `LOCKED`.
+- **agent**: short hex codename (e.g. `agent-a3f7`) so multiple agents on
+  multiple machines stay distinguishable in shared logs.
+- **summary**: one paragraph. Telegraphese is fine. Preserve exact paths,
+  version numbers, hex IDs, file names. End with what was UNTESTED.
+
+Full detail per session lives in `REVIVAL-S<id>-*.md` on disk and (if you have
+a brain) under brain tag `<S-id>`.
+
+## Compaction
+
+Once `05-audit-trail.md` exceeds ~30k tokens of loaded context, compress
+verbose rows into `archive/closed-sessions-archive.md` and replace with
+one-line stubs. `bin/latest-revival.ps1` is the inverse — it expands a single
+revival doc back into prose on demand.
+
+---
+
+# Audit Trail — Active Sessions
+
+| S-id | STATUS | agent. one-line summary. |
+|------|--------|--------------------------|
+| (your first row goes here) | OPEN | agent-NNNN. one-paragraph summary ending with what was UNTESTED. |
