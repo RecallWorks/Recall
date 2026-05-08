@@ -174,3 +174,7 @@ footer.site-footer .meta div strong { color: var(--text-dim); }
   .arch-row { grid-template-columns: 1fr; }
   .base-row { grid-template-columns: 1fr; gap: 4px; }
 }
+
+.social { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+.social a { color: var(--accent); text-decoration: none; }
+.social a:hover { text-decoration: underline; }
