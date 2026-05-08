@@ -1,53 +1,87 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="800" height="800">
+  <!--
+    MortgageTech meshed-gears profile picture for YouTube.
+    Inspired by MortgageTech_logo.png. Vector rebuild for crisp scaling.
+    Gray large gear (12 teeth) + orange small gear (8 teeth) meshed,
+    plus orange axle dot in center of large gear.
+    YouTube crops to a circle, so all critical content sits inside r=380 from center.
+  -->
   <defs>
     <radialGradient id="bg" cx="50%" cy="40%" r="65%">
       <stop offset="0%" stop-color="#1a1410"/>
       <stop offset="70%" stop-color="#0a0a0a"/>
       <stop offset="100%" stop-color="#000"/>
     </radialGradient>
-    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1">
+    <linearGradient id="orange" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%" stop-color="#E59A45"/>
       <stop offset="50%" stop-color="#C7802F"/>
-      <stop offset="100%" stop-color="#8B5618"/>
+      <stop offset="100%" stop-color="#9B6320"/>
     </linearGradient>
-    <linearGradient id="ring" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#C7802F" stop-opacity="0.85"/>
-      <stop offset="100%" stop-color="#C7802F" stop-opacity="0.35"/>
+    <linearGradient id="gray" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#7d7d7d"/>
+      <stop offset="100%" stop-color="#4a4a4a"/>
     </linearGradient>
+    <filter id="ds" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="6"/>
+      <feOffset dx="0" dy="4" result="off"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.45"/></feComponentTransfer>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
   </defs>
 
-  <!-- circle field -->
+  <!-- circular field (YouTube auto-crops to circle anyway) -->
   <circle cx="400" cy="400" r="400" fill="url(#bg)"/>
 
-  <!-- chunk lattice ring (memory cells orbiting) -->
-  <g opacity="0.55" transform="translate(400,400)">
-    <!-- 12 cells around a circle r=290 -->
-    <g>
-      <rect x="-22" y="-312" width="44" height="44" fill="#C7802F" fill-opacity="0.30" stroke="#C7802F" stroke-width="1.5"/>
+  <!-- subtle inner halo behind gears -->
+  <circle cx="400" cy="400" r="320" fill="#C7802F" fill-opacity="0.04"/>
+
+  <!-- =============== LARGE GRAY GEAR =============== -->
+  <!-- centered slightly lower-right to leave room for small gear upper-left, like the original logo -->
+  <g transform="translate(440,440)" filter="url(#ds)">
+    <!-- 12 teeth as rectangles around a circle, body radius 175, tooth h 55 -->
+    <g fill="url(#gray)">
+      <g><rect x="-22" y="-238" width="44" height="62" rx="3"/></g>
+      <g transform="rotate(30)"><rect x="-22" y="-238" width="44" height="62" rx="3"/></g>
+      <g transform="rotate(60)"><rect x="-22" y="-238" width="44" height="62" rx="3"/></g>
+      <g transform="rotate(90)"><rect x="-22" y="-238" width="44" height="62" rx="3"/></g>
+      <g transform="rotate(120)"><rect x="-22" y="-238" width="44" height="62" rx="3"/></g>
+      <g transform="rotate(150)"><rect x="-22" y="-238" width="44" height="62" rx="3"/></g>
+      <g transform="rotate(180)"><rect x="-22" y="-238" width="44" height="62" rx="3"/></g>
+      <g transform="rotate(210)"><rect x="-22" y="-238" width="44" height="62" rx="3"/></g>
+      <g transform="rotate(240)"><rect x="-22" y="-238" width="44" height="62" rx="3"/></g>
+      <g transform="rotate(270)"><rect x="-22" y="-238" width="44" height="62" rx="3"/></g>
+      <g transform="rotate(300)"><rect x="-22" y="-238" width="44" height="62" rx="3"/></g>
+      <g transform="rotate(330)"><rect x="-22" y="-238" width="44" height="62" rx="3"/></g>
     </g>
-    <g transform="rotate(30)"><rect x="-22" y="-312" width="44" height="44" fill="none" stroke="#C7802F" stroke-width="1.5"/></g>
-    <g transform="rotate(60)"><rect x="-22" y="-312" width="44" height="44" fill="#C7802F" fill-opacity="0.20" stroke="#C7802F" stroke-width="1.5"/></g>
-    <g transform="rotate(90)"><rect x="-22" y="-312" width="44" height="44" fill="none" stroke="#C7802F" stroke-width="1.5"/></g>
-    <g transform="rotate(120)"><rect x="-22" y="-312" width="44" height="44" fill="#C7802F" fill-opacity="0.45" stroke="#C7802F" stroke-width="1.5"/></g>
-    <g transform="rotate(150)"><rect x="-22" y="-312" width="44" height="44" fill="none" stroke="#C7802F" stroke-width="1.5"/></g>
-    <g transform="rotate(180)"><rect x="-22" y="-312" width="44" height="44" fill="#C7802F" fill-opacity="0.20" stroke="#C7802F" stroke-width="1.5"/></g>
-    <g transform="rotate(210)"><rect x="-22" y="-312" width="44" height="44" fill="none" stroke="#C7802F" stroke-width="1.5"/></g>
-    <g transform="rotate(240)"><rect x="-22" y="-312" width="44" height="44" fill="#C7802F" fill-opacity="0.35" stroke="#C7802F" stroke-width="1.5"/></g>
-    <g transform="rotate(270)"><rect x="-22" y="-312" width="44" height="44" fill="none" stroke="#C7802F" stroke-width="1.5"/></g>
-    <g transform="rotate(300)"><rect x="-22" y="-312" width="44" height="44" fill="#C7802F" fill-opacity="0.15" stroke="#C7802F" stroke-width="1.5"/></g>
-    <g transform="rotate(330)"><rect x="-22" y="-312" width="44" height="44" fill="none" stroke="#C7802F" stroke-width="1.5"/></g>
+    <!-- gear body -->
+    <circle cx="0" cy="0" r="180" fill="url(#gray)"/>
+    <!-- inner ring (well) -->
+    <circle cx="0" cy="0" r="120" fill="#0a0a0a"/>
+    <!-- orange axle dot -->
+    <circle cx="0" cy="0" r="62" fill="url(#orange)"/>
+    <!-- small highlight on axle -->
+    <circle cx="-18" cy="-18" r="14" fill="#fff" fill-opacity="0.12"/>
   </g>
 
-  <!-- inner accent ring -->
-  <circle cx="400" cy="400" r="240" fill="none" stroke="url(#ring)" stroke-width="2" opacity="0.5"/>
+  <!-- =============== SMALL ORANGE GEAR =============== -->
+  <!-- positioned upper-left to mesh with the large gear -->
+  <g transform="translate(265,235) rotate(11)" filter="url(#ds)">
+    <!-- 8 teeth, body radius 80, tooth h 40 -->
+    <g fill="url(#orange)">
+      <g><rect x="-18" y="-122" width="36" height="46" rx="3"/></g>
+      <g transform="rotate(45)"><rect x="-18" y="-122" width="36" height="46" rx="3"/></g>
+      <g transform="rotate(90)"><rect x="-18" y="-122" width="36" height="46" rx="3"/></g>
+      <g transform="rotate(135)"><rect x="-18" y="-122" width="36" height="46" rx="3"/></g>
+      <g transform="rotate(180)"><rect x="-18" y="-122" width="36" height="46" rx="3"/></g>
+      <g transform="rotate(225)"><rect x="-18" y="-122" width="36" height="46" rx="3"/></g>
+      <g transform="rotate(270)"><rect x="-18" y="-122" width="36" height="46" rx="3"/></g>
+      <g transform="rotate(315)"><rect x="-18" y="-122" width="36" height="46" rx="3"/></g>
+    </g>
+    <circle cx="0" cy="0" r="82" fill="url(#orange)"/>
+    <!-- inner bore -->
+    <circle cx="0" cy="0" r="34" fill="#0a0a0a"/>
+    <!-- gloss highlight -->
+    <circle cx="-22" cy="-22" r="14" fill="#fff" fill-opacity="0.18"/>
+  </g>
 
-  <!-- big R wordmark -->
-  <text x="400" y="510" text-anchor="middle" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-weight="800" font-size="380" fill="#fafafa" letter-spacing="-12">R</text>
-
-  <!-- TM mark -->
-  <text x="540" y="320" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="58" fill="url(#accent)" font-weight="600">™</text>
-
-  <!-- bottom hairline + label -->
-  <line x1="280" y1="600" x2="520" y2="600" stroke="url(#accent)" stroke-width="2"/>
-  <text x="400" y="640" text-anchor="middle" font-family="'JetBrains Mono', 'Consolas', monospace" font-size="32" fill="#C7802F" letter-spacing="6">RECALL</text>
 </svg>
