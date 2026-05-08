@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "ai-recallworks"
-version = "0.5.1"
+version = "0.5.2"
 description = "Open-source agent-memory MCP server. recall.works"
 readme = "README.md"
 requires-python = ">=3.11"

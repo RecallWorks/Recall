@@ -1,5 +1,5 @@
 <!-- @wbx-modified copilot-a3f7 | 2026-04-30 01:30 MTN | v0.5.5-readme | add mcp-name marker for MCP Registry namespace verify | prev: copilot-a3f7@2026-04-30 03:25 MTN -->
-<!-- mcp-name: io.github.recallworks/recall -->
+<!-- mcp-name: io.github.RecallWorks/recall -->
 <div align="center">
 
 # Recall&trade;
