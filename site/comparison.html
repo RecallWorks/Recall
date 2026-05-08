@@ -1,0 +1,137 @@
+<!doctype html>
+<!-- @recall.works/site | comparison.html | v1.4 | 2026-05-08 | consolidated to RecallWorks/Recall canonical home; URL refs updated | prev: v1.3 -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Compare · Recall™ Agent OS</title>
+<link rel="stylesheet" href="assets/site.css">
+<meta name="description" content="How recall.works sits next to GitHub Copilot Chat memory, Cursor .cursorrules, Cline, Aider, Continue.dev, LangChain memory, AutoGen / CrewAI. Same gap, different angle.">
+<link rel="canonical" href="https://recall.works/comparison.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="recall.works">
+<meta property="og:title" content="Compare · Recall™ Agent OS">
+<meta property="og:description" content="How recall.works sits next to GitHub Copilot Chat memory, Cursor .cursorrules, Cline, Aider, Continue.dev, LangChain memory, AutoGen / CrewAI. Same gap, different angle.">
+<meta property="og:url" content="https://recall.works/comparison.html">
+<meta property="og:image" content="https://recall.works/assets/og-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@mtgtechusa">
+<meta name="twitter:title" content="Compare · Recall™ Agent OS">
+<meta name="twitter:description" content="How recall.works sits next to GitHub Copilot Chat memory, Cursor .cursorrules, Cline, Aider, Continue.dev, LangChain memory, AutoGen / CrewAI. Same gap, different angle.">
+<meta name="twitter:image" content="https://recall.works/assets/og-card.png">
+</head>
+<body>
+
+<header class="topnav">
+  <div class="topnav-inner">
+    <a class="logo" href="index.html">Recall<sup>™</sup></a>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="whitepaper.html">Whitepaper</a>
+      <a href="pillars.html">Pillars</a>
+      <a href="architecture.html">Architecture</a>
+      <a href="brain.html">Brain</a>
+      <a href="hardware.html">Hardware</a>
+      <a href="comparison.html" class="active">Compare</a>
+      <a href="quickstart.html">Quickstart</a>
+      <a href="https://github.com/RecallWorks/Recall">GitHub &rarr;</a>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap">
+
+<header class="page-header">
+  <div class="eyebrow">precise about the contribution</div>
+  <h1><span class="accent">Compare</span></h1>
+  <p class="lede">What Agent OS replaces in the default workflow, and how it sits next to the other good work in this space.</p>
+</header>
+
+<section>
+  <h2>What it replaces</h2>
+  <div class="compare">
+    <div class="col before">
+      <h4>Default agent experience</h4>
+      <ul>
+        <li>Cold start every chat. "Read the scrollback."</li>
+        <li>Auto-compaction picks what survives. Lossy by surprise.</li>
+        <li>Chat-only memory. Disk reality drifts from agent reality.</li>
+        <li>No cost ceiling. Bug in a loop = morning email from billing.</li>
+        <li>Backups are someone else's job.</li>
+        <li>Audit = scrollback search.</li>
+      </ul>
+    </div>
+    <div class="col after">
+      <h4>Agent OS</h4>
+      <ul>
+        <li>Cold start reads a 3KB curated brief. Zero context loss.</li>
+        <li>Compaction can happen safely — durable memory survives it.</li>
+        <li>Memory tiers map to disk, vector brain, and immutable cloud.</li>
+        <li>Three-layer cost gate. Worst case = abort, never overspend.</li>
+        <li>Nightly azcopy + weekly brain snapshot + sealed local copy.</li>
+        <li>Audit-trail with one row per session. Always greppable.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>How this fits next to existing tools</h2>
+  <p>Plenty of good work exists in this space. Calling out the baselines so the contribution here is precise — Agent OS is the <em>combination</em>, not any one piece.</p>
+  <div class="base">
+    <div class="base-row">
+      <div class="base-name">GitHub Copilot Chat memory<br><span class="scope">tiered memory · per workspace</span></div>
+      <div class="base-note">The actual host platform behind the reference implementation. Provides the <em>memory tiers</em> Agent OS leans on. What's missing in the box: durable cold storage, cost gates, the discipline conventions, the local-model distillation.</div>
+    </div>
+    <div class="base-row">
+      <div class="base-name">Cursor · <code>.cursorrules</code><br><span class="scope">project-scoped instructions</span></div>
+      <div class="base-note">Solves <em>preference persistence</em> and routing. No durable journal, no audit trail, no cold-start protocol, no cost gates. Sits at the same tier as the routing rules in <code>/memories/</code>.</div>
+    </div>
+    <div class="base-row">
+      <div class="base-name">Cline / Roo Code<br><span class="scope">custom-instructions + agentic loops</span></div>
+      <div class="base-note">Strong on agentic tool use. Memory is per-conversation. Same gap as default Copilot: no durable layer between conversations, no cost gate, no immutable audit.</div>
+    </div>
+    <div class="base-row">
+      <div class="base-name">Aider · <code>.aider.chat.history</code><br><span class="scope">conversation log + git commits</span></div>
+      <div class="base-note">Audit-as-git is excellent — every change is a commit. Closest existing analog to the audit-trail pillar. Doesn't have the brain, the vault, or the cost gates.</div>
+    </div>
+    <div class="base-row">
+      <div class="base-name">Continue.dev<br><span class="scope">configurable IDE assistant</span></div>
+      <div class="base-note">Configurable model routing and context providers. Comparable to the routing layer. Memory and audit story is lighter; no cold-storage tier.</div>
+    </div>
+    <div class="base-row">
+      <div class="base-name">LangChain / LlamaIndex memory<br><span class="scope">programmatic memory abstractions</span></div>
+      <div class="base-note">Library-level building blocks for memory. You'd assemble <em>something like</em> the memory + brain pillars on top of these. Doesn't speak to discipline conventions or cost gates — that's outside their scope.</div>
+    </div>
+    <div class="base-row">
+      <div class="base-name">AutoGen · CrewAI · smol-agents<br><span class="scope">multi-agent orchestration</span></div>
+      <div class="base-note">Solves how agents coordinate <em>during</em> a session. Agent OS is concerned with what survives <em>between</em> sessions. Complementary, not competing — wire either of these on top of the brain layer for multi-agent.</div>
+    </div>
+  </div>
+  <p style="font-size:13px;color:var(--text-faint);margin-top:14px"><strong>What's distinctive here:</strong> the tiered-memory + WORM-vault + fail-closed cost gate + local-model distiller + networked brain — assembled and disciplined as one architecture, with conventions that keep the agent honest. Each individual pillar has prior art. The integration is the point.</p>
+</section>
+
+<section>
+  <h2>A note on which AI you're driving</h2>
+  <p>The reference implementation was field-tested with <strong>Claude (Sonnet / Opus class) running inside GitHub Copilot Chat in VS Code</strong>. That combination shaped some of the conventions:</p>
+  <ul style="color:var(--text-dim);font-size:14px;line-height:1.8;padding-left:22px">
+    <li>The <code>/memories/</code> tier scopes (user / session / repo) match Copilot Chat's memory-tool surface. Other hosts expose memory differently — the pattern still applies, the file paths and load triggers may not.</li>
+    <li>MCP tool calling, the specific way <code>read_file</code> / <code>grep_search</code> / <code>run_in_terminal</code> compose, and the brain's HTTP/SSE bridge were tuned against Claude's tool-use behavior. Other models route through tools with different latency, different parallelism, and different willingness to read large context.</li>
+    <li>The cold-start protocol assumes the agent will <em>actually</em> read a 3KB brief instead of paraphrasing it. That's been more reliable with Claude than with smaller or earlier-generation models in the same harness.</li>
+    <li>Branding stamps, audit-trail discipline, and the fix-at-root reflex are conventions encoded in instruction files. They depend on the host honoring instruction files at all — which varies a lot across editors, models, and product versions.</li>
+  </ul>
+  <p style="font-size:13px;color:var(--text-faint);margin-top:14px">Run the same architecture against a different agent and expect to retune. The pattern is portable; the specific cadence isn't. Treat anything in the reference scripts as a starting point, not a contract.</p>
+</section>
+
+<footer class="site-footer">
+  <div class="meta">
+    <div><strong>Next:</strong> <a href="quickstart.html">Quickstart &rarr;</a></div>
+    <div><strong>Or:</strong> <a href="https://github.com/RecallWorks/Recall">GitHub repo</a></div>
+  </div>
+</footer>
+
+</div>
+</body>
+</html>

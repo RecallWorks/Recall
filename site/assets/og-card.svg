@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- @wbx-modified copilot-a3f7·MTN | 2026-05-08 | OG share-card image, 1200x630 -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0a0a0a"/>
+      <stop offset="100%" stop-color="#1a1410"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#C7802F"/>
+      <stop offset="100%" stop-color="#e8a04a"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect x="0" y="0" width="8" height="630" fill="url(#accent)"/>
+  <text x="80" y="200" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="92" font-weight="700" fill="#f5f5f5">Recall<tspan font-size="36" dy="-40" fill="#C7802F">™</tspan></text>
+  <text x="80" y="290" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="36" font-weight="400" fill="#d0d0d0">Durable memory for AI coding agents</text>
+  <text x="80" y="430" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="22" fill="#888">An open Agent OS pattern · brain + tiered memory · MCP-native</text>
+  <text x="80" y="465" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="22" fill="#888">Works with Copilot, Claude, Cursor, Cline, Aider, Continue, LangChain</text>
+  <text x="80" y="565" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="20" font-weight="600" fill="#C7802F">recall.works</text>
+  <text x="1120" y="565" text-anchor="end" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="18" fill="#666">github.com/stevepaltridge/recall.works</text>
+</svg>

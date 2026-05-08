@@ -1,0 +1,120 @@
+<!doctype html>
+<!-- @recall.works/site | hardware.html | v1.4 | 2026-05-08 | consolidated to RecallWorks/Recall canonical home; URL refs updated | prev: v1.3 -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hardware reality · Recall™ Agent OS</title>
+<link rel="stylesheet" href="assets/site.css">
+<meta name="description" content="What recall.works actually costs to run, and on what hardware. A consumer GPU and a few dollars a month of object storage. No API meters, no surprise bills.">
+<link rel="canonical" href="https://recall.works/hardware.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="recall.works">
+<meta property="og:title" content="Hardware reality · Recall™ Agent OS">
+<meta property="og:description" content="What recall.works actually costs to run, and on what hardware. A consumer GPU and a few dollars a month of object storage. No API meters, no surprise bills.">
+<meta property="og:url" content="https://recall.works/hardware.html">
+<meta property="og:image" content="https://recall.works/assets/og-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@mtgtechusa">
+<meta name="twitter:title" content="Hardware reality · Recall™ Agent OS">
+<meta name="twitter:description" content="What recall.works actually costs to run, and on what hardware. A consumer GPU and a few dollars a month of object storage. No API meters, no surprise bills.">
+<meta name="twitter:image" content="https://recall.works/assets/og-card.png">
+</head>
+<body>
+
+<header class="topnav">
+  <div class="topnav-inner">
+    <a class="logo" href="index.html">Recall<sup>™</sup></a>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="whitepaper.html">Whitepaper</a>
+      <a href="pillars.html">Pillars</a>
+      <a href="architecture.html">Architecture</a>
+      <a href="brain.html">Brain</a>
+      <a href="hardware.html" class="active">Hardware</a>
+      <a href="comparison.html">Compare</a>
+      <a href="quickstart.html">Quickstart</a>
+      <a href="https://github.com/RecallWorks/Recall">GitHub &rarr;</a>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap">
+
+<header class="page-header">
+  <div class="eyebrow">honest version</div>
+  <h1><span class="accent">Hardware</span> reality</h1>
+  <p class="lede">The local-compute pillar carries weight, and "consumer GPU" hides a wide range. Here's what to expect at each profile, and what to do if you don't have one.</p>
+</header>
+
+<section>
+  <h2>By the numbers</h2>
+  <div class="stats">
+    <div class="stat"><div class="num">&lt;$1</div><div class="lbl">Azure Blob storage</div></div>
+    <div class="stat"><div class="num">7 yr</div><div class="lbl">WORM retention</div></div>
+    <div class="stat"><div class="num">~3 KB</div><div class="lbl">Cold-start brief</div></div>
+    <div class="stat"><div class="num">3</div><div class="lbl">Independent fail-safes</div></div>
+  </div>
+</section>
+
+<section>
+  <h2>Profile-by-profile breakdown</h2>
+  <p>Everything in Agent OS <em>besides</em> local-model distillation (memory tiers, vault, guardrails, audit-trail, continuity discipline) works on any machine that runs your editor. The table below is specifically about the distillation pillar.</p>
+  <table class="hw">
+    <thead>
+      <tr><th style="width:30%">Profile</th><th style="width:25%">Local model</th><th style="width:20%">Distill speed</th><th style="width:25%">Verdict</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="profile">Workstation, 16 GB+ VRAM<br><span style="font-weight:400;color:var(--text-faint);font-size:12px">RTX 4080/5080/5090, M3/M4 Max, similar</span></td>
+        <td>14B coder model, full quality</td>
+        <td>~3–15 sec / summary</td>
+        <td class="verdict good">Reference-implementation experience.</td>
+      </tr>
+      <tr>
+        <td class="profile">Mid-range laptop, 8 GB VRAM<br><span style="font-weight:400;color:var(--text-faint);font-size:12px">RTX 3060/4060, M2 Pro, etc.</span></td>
+        <td>7B coder model, q4 quantized</td>
+        <td>~10–30 sec / summary</td>
+        <td class="verdict warn">Workable. Summaries shorter, slightly noisier.</td>
+      </tr>
+      <tr>
+        <td class="profile">Integrated graphics<br><span style="font-weight:400;color:var(--text-faint);font-size:12px">no discrete GPU</span></td>
+        <td>3B model on CPU, or hosted small model</td>
+        <td>~30–90 sec / summary</td>
+        <td class="verdict warn">Slow but functional. Or skip local entirely and use a cheap hosted model — the spend gate keeps it bounded.</td>
+      </tr>
+      <tr>
+        <td class="profile">Phone-class compute</td>
+        <td>—</td>
+        <td>—</td>
+        <td class="verdict bad">Not the target. The pattern needs <em>some</em> available compute for distillation.</td>
+      </tr>
+    </tbody>
+  </table>
+  <p style="font-size:13px;color:var(--text-faint);margin-top:14px">The five non-compute pillars don't care about the GPU. If you can run an editor and reach object storage, you can run Memory + Vault + Guardrails + Brain backup + Continuity unchanged. Local compute is the cherry on top, not the load-bearing wall.</p>
+</section>
+
+<section>
+  <h2>Cost expectation</h2>
+  <p>Reference implementation, on the documented setup, has run for months at well under $1/month in cloud spend. The line items:</p>
+  <ul style="color:var(--text-dim);font-size:14px;line-height:1.8;padding-left:22px">
+    <li><strong style="color:var(--text)">Object storage (Cool tier):</strong> $0.01/GB/month for the active draft container. ~200 GB ≈ $2/mo nominal, but Archive lifecycle drops most of it to $0.00099/GB/month within 30 days.</li>
+    <li><strong style="color:var(--text)">Vector brain (cloud-hosted):</strong> a small container app instance, ~$0.30/mo for hobbyist usage. Network egress dwarfs compute; tens of millions of recall queries fit comfortably in the free tier of most provider networks.</li>
+    <li><strong style="color:var(--text)">Local compute:</strong> $0.00. The local model never bills.</li>
+    <li><strong style="color:var(--text)">Egress / API calls:</strong> negligible. The agent's expensive token stream is paid by the host editor, not Agent OS.</li>
+  </ul>
+  <p style="margin-top:18px">The reference spend-gate script ships with a $25/month ceiling as the default circuit breaker. It's not a target spend or a recommendation — it's a number that makes a runaway script hit a wall instead of a billing email. Replace it with whatever number you want; the gate just needs to fail-closed before it touches money.</p>
+</section>
+
+<footer class="site-footer">
+  <div class="meta">
+    <div><strong>Next:</strong> <a href="comparison.html">Compare to existing tools &rarr;</a></div>
+    <div><strong>Or:</strong> <a href="quickstart.html">Quickstart</a></div>
+  </div>
+</footer>
+
+</div>
+</body>
+</html>

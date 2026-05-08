@@ -1,0 +1,58 @@
+{
+  "_comment": "Copy this file to config.json and edit. config.json is gitignored.",
+  "_brand": "Recall :: Agent OS reference implementation config",
+
+  "workspace": {
+    "primary":   "C:\\Dev",
+    "secondary": "D:\\Dev",
+    "_note": "Primary is the active code root. Secondary is for archive / separate-product surfaces."
+  },
+
+  "memory": {
+    "memoriesDir":   "%APPDATA%\\Code\\User\\globalStorage\\github.copilot-chat\\memory-tool\\memories",
+    "transcriptsDir":"%APPDATA%\\Code\\User\\workspaceStorage\\<workspaceId>\\GitHub.copilot-chat\\transcripts",
+    "workspaceId":   "REPLACE_WITH_YOUR_VS_CODE_WORKSPACE_ID",
+    "_note": "Path conventions match GitHub Copilot Chat's memory tool. Other editors will differ."
+  },
+
+  "vault": {
+    "provider":          "azure-blob",
+    "storageAccount":    "REPLACE_WITH_YOUR_STORAGE_ACCOUNT",
+    "draftContainer":    "draft",
+    "vaultContainer":    "vault",
+    "wormDays":          2557,
+    "lifecycleDraftDays":7,
+    "lifecycleVaultDays":30,
+    "keyFile":           "config\\.vault-key.txt",
+    "_note": "vaultContainer should have time-based immutability set (Azure Blob) or equivalent WORM policy."
+  },
+
+  "spendGate": {
+    "monthlyCeilingUSD": 25,
+    "cacheSeconds":      60,
+    "failClosed":        true,
+    "killSwitchFile":    "config\\.vault-killswitch",
+    "_note": "Every billable script must clear killswitch + this gate + provider-side budget alert."
+  },
+
+  "localModel": {
+    "runtime": "ollama",
+    "model":   "qwen2.5-coder:14b",
+    "fallbackModel": "qwen2.5:7b",
+    "killSwitchFile": "config\\.qwen-killswitch",
+    "_note": "Used for cold-start briefs, rolling summaries, and verbose-memory compression."
+  },
+
+  "schedules": {
+    "vaultSyncCron":      "0 2 * * *",
+    "vaultPromoteCron":   "0 3 * * 0",
+    "brainSnapshotCron":  "0 4 * * 0",
+    "rollingSummaryEveryMinutes": 15,
+    "_note": "bootstrap.ps1 translates these into Windows scheduled tasks."
+  },
+
+  "branding": {
+    "agentSignature": "agent-NNNN",
+    "_note": "Pick a unique short hex/codename per Rule 9. Used in file-edit stamps."
+  }
+}

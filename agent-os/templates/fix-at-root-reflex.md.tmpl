@@ -1,0 +1,46 @@
+# Fix-at-root reflex
+
+**When something fails the same way twice, stop fixing the symptom.**
+
+The fix-at-root reflex is the single most expensive habit to teach an AI
+agent and the single most valuable one to keep. It is the difference between
+"I patched the latest manifestation" and "the next manifestation can't happen."
+
+## The pattern
+
+1. **Notice repetition.** "I'm doing this again" / "this looks like last time"
+   / "I just fixed something like this two days ago."
+2. **Stop the patch.** Do not write the next conditional or workaround.
+3. **Name the root.** Write one sentence describing the underlying cause,
+   not the surface failure. If you can't, that means you don't know yet.
+4. **Decide the right level.** Code fix? Config fix? Convention fix?
+   Documentation fix? Architectural fix? Pick the level the cause actually
+   lives at — usually higher than the level you noticed it.
+5. **Make the fix at that level.** Even if it's slower today.
+6. **Record it.** REVIVAL doc, audit-trail row, anti-pattern note. Future
+   sessions need to know this happened so the lesson compounds.
+
+## Examples (from the originating workspace)
+
+- Surface: "ollama returns empty body."
+  Patch: retry with smaller prompt.
+  Root: ollama silently truncates >32K context.
+  Fix: cap input at the call site once, document the limit. Cite next time.
+
+- Surface: "agents keep writing files into `C:\Users\...`"
+  Patch: ad-hoc warning in each session.
+  Root: the rule said "never" but operational reality required exact-path
+  carve-outs (memory tool, transcripts dir).
+  Fix: rewrite the rule to match reality so it stops getting ignored.
+
+- Surface: "qwen refused — 'don't have access to file system'."
+  Patch: try a different prompt.
+  Root: input was raw jsonl (mostly tool plumbing JSON), no prose visible.
+  Fix: pre-extract `user.message.content` + `assistant.message.content`
+  server-side before calling qwen.
+
+## What to do when the agent slips
+
+If you (the agent reading this) catch yourself patching the same thing twice,
+write `FIX-AT-ROOT:` followed by a one-sentence root description and stop.
+Then think about the right level.

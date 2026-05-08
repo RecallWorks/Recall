@@ -12,7 +12,7 @@ import logging
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
-from ..license import LicenseError, OSS_LICENSE, require_chunk_capacity, require_for_tool
+from ..license import OSS_LICENSE, LicenseError, require_chunk_capacity, require_for_tool
 from ..store import is_ready
 from ..tools import TOOL_REGISTRY
 from ..tools.recall import _recall_structured

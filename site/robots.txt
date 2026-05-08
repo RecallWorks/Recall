@@ -1,0 +1,5 @@
+# @wbx-modified copilot-a3f7·MTN | 2026-05-08 | initial robots.txt
+User-agent: *
+Allow: /
+
+Sitemap: https://recall.works/sitemap.xml
