@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="800" height="800">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="40%" r="65%">
+      <stop offset="0%" stop-color="#1a1410"/>
+      <stop offset="70%" stop-color="#0a0a0a"/>
+      <stop offset="100%" stop-color="#000"/>
+    </radialGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#E59A45"/>
+      <stop offset="50%" stop-color="#C7802F"/>
+      <stop offset="100%" stop-color="#8B5618"/>
+    </linearGradient>
+    <linearGradient id="ring" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#C7802F" stop-opacity="0.85"/>
+      <stop offset="100%" stop-color="#C7802F" stop-opacity="0.35"/>
+    </linearGradient>
+  </defs>
+
+  <!-- circle field -->
+  <circle cx="400" cy="400" r="400" fill="url(#bg)"/>
+
+  <!-- chunk lattice ring (memory cells orbiting) -->
+  <g opacity="0.55" transform="translate(400,400)">
+    <!-- 12 cells around a circle r=290 -->
+    <g>
+      <rect x="-22" y="-312" width="44" height="44" fill="#C7802F" fill-opacity="0.30" stroke="#C7802F" stroke-width="1.5"/>
+    </g>
+    <g transform="rotate(30)"><rect x="-22" y="-312" width="44" height="44" fill="none" stroke="#C7802F" stroke-width="1.5"/></g>
+    <g transform="rotate(60)"><rect x="-22" y="-312" width="44" height="44" fill="#C7802F" fill-opacity="0.20" stroke="#C7802F" stroke-width="1.5"/></g>
+    <g transform="rotate(90)"><rect x="-22" y="-312" width="44" height="44" fill="none" stroke="#C7802F" stroke-width="1.5"/></g>
+    <g transform="rotate(120)"><rect x="-22" y="-312" width="44" height="44" fill="#C7802F" fill-opacity="0.45" stroke="#C7802F" stroke-width="1.5"/></g>
+    <g transform="rotate(150)"><rect x="-22" y="-312" width="44" height="44" fill="none" stroke="#C7802F" stroke-width="1.5"/></g>
+    <g transform="rotate(180)"><rect x="-22" y="-312" width="44" height="44" fill="#C7802F" fill-opacity="0.20" stroke="#C7802F" stroke-width="1.5"/></g>
+    <g transform="rotate(210)"><rect x="-22" y="-312" width="44" height="44" fill="none" stroke="#C7802F" stroke-width="1.5"/></g>
+    <g transform="rotate(240)"><rect x="-22" y="-312" width="44" height="44" fill="#C7802F" fill-opacity="0.35" stroke="#C7802F" stroke-width="1.5"/></g>
+    <g transform="rotate(270)"><rect x="-22" y="-312" width="44" height="44" fill="none" stroke="#C7802F" stroke-width="1.5"/></g>
+    <g transform="rotate(300)"><rect x="-22" y="-312" width="44" height="44" fill="#C7802F" fill-opacity="0.15" stroke="#C7802F" stroke-width="1.5"/></g>
+    <g transform="rotate(330)"><rect x="-22" y="-312" width="44" height="44" fill="none" stroke="#C7802F" stroke-width="1.5"/></g>
+  </g>
+
+  <!-- inner accent ring -->
+  <circle cx="400" cy="400" r="240" fill="none" stroke="url(#ring)" stroke-width="2" opacity="0.5"/>
+
+  <!-- big R wordmark -->
+  <text x="400" y="510" text-anchor="middle" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-weight="800" font-size="380" fill="#fafafa" letter-spacing="-12">R</text>
+
+  <!-- TM mark -->
+  <text x="540" y="320" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="58" fill="url(#accent)" font-weight="600">™</text>
+
+  <!-- bottom hairline + label -->
+  <line x1="280" y1="600" x2="520" y2="600" stroke="url(#accent)" stroke-width="2"/>
+  <text x="400" y="640" text-anchor="middle" font-family="'JetBrains Mono', 'Consolas', monospace" font-size="32" fill="#C7802F" letter-spacing="6">RECALL</text>
+</svg>
