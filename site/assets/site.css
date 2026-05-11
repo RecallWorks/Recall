@@ -161,6 +161,42 @@ footer.site-footer { margin-top: 80px; padding-top: 28px; border-top: 1px solid 
 footer.site-footer .meta { display: flex; gap: 24px; flex-wrap: wrap; }
 footer.site-footer .meta div strong { color: var(--text-dim); }
 
+/* --- How-it-works steps --- */
+.steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; counter-reset: step; }
+.step { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 28px 24px; position: relative; counter-increment: step; }
+.step::before { content: counter(step); position: absolute; top: 16px; right: 18px; font-size: 48px; font-weight: 800; color: var(--accent-soft); line-height: 1; font-family: Georgia, serif; }
+.step h3 { margin-top: 0; }
+.step code { background: rgba(199,128,47,0.1); padding: 2px 6px; border-radius: 3px; font-size: 12px; color: var(--accent); }
+
+/* --- Badges / social proof --- */
+.badges { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-top: 24px; }
+.badge { display: inline-flex; align-items: center; gap: 6px; background: var(--panel); border: 1px solid var(--border); border-radius: 6px; padding: 8px 14px; font-size: 12px; color: var(--text-dim); letter-spacing: 0.03em; font-weight: 500; text-decoration: none; transition: border-color 0.15s; }
+.badge:hover { border-color: var(--accent); text-decoration: none; color: var(--text); }
+.badge .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--good); flex-shrink: 0; }
+
+/* --- Competitive table --- */
+.comp-table { width: 100%; border-collapse: collapse; background: var(--panel); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.comp-table th, .comp-table td { text-align: left; padding: 12px 16px; font-size: 13px; border-bottom: 1px solid var(--border); }
+.comp-table th { background: var(--panel-2); color: var(--text-faint); font-weight: 600; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; }
+.comp-table tr:last-child td { border-bottom: none; }
+.comp-table td:first-child { color: var(--text); font-weight: 500; }
+.comp-table .yes { color: var(--good); }
+.comp-table .no { color: #c8554a; }
+.comp-table .recall-col { background: rgba(199,128,47,0.04); }
+.comp-table th.recall-col { color: var(--accent); }
+
+/* --- Market stat callout --- */
+.market-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.market-stat { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 22px 24px; text-align: center; }
+.market-stat .big { font-size: 36px; font-weight: 700; color: var(--accent); letter-spacing: -0.02em; line-height: 1.1; }
+.market-stat .note { font-size: 12px; color: var(--text-faint); margin-top: 6px; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 500; }
+.market-stat .src { font-size: 10px; color: var(--text-faint); margin-top: 4px; opacity: 0.6; }
+
+/* --- Install box --- */
+.install-box { background: #0a0c0f; border: 1px solid var(--border); border-radius: 8px; padding: 20px 24px; margin: 18px 0; display: flex; align-items: center; gap: 14px; }
+.install-box code { font-size: 15px; color: var(--accent); flex: 1; }
+.install-box .label { font-size: 11px; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600; white-space: nowrap; }
+
 /* --- Responsive --- */
 @media (max-width: 720px) {
   .wrap { padding: 32px 20px 64px; }
@@ -170,7 +206,7 @@ footer.site-footer .meta div strong { color: var(--text-dim); }
   .hero .brand-xl { font-size: 64px; }
   .hero .tagline { font-size: 20px; }
   h1 { font-size: 28px; }
-  .pillars, .compare, .stats, .cards { grid-template-columns: 1fr; }
+  .pillars, .compare, .stats, .cards, .steps, .market-stats { grid-template-columns: 1fr; }
   .arch-row { grid-template-columns: 1fr; }
   .base-row { grid-template-columns: 1fr; gap: 4px; }
 }

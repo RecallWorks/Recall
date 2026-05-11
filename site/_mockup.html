@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="icon" type="image/png" href="assets/recall-icon.png">
+<meta charset="utf-8">
+<title>Recall OS Mockup - Animated</title>
+<style>
+  body {
+    background: #000;
+    padding: 40px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  .mock-chat {
+    background: #111;
+    border-radius: 8px;
+    border: 1px solid #333;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 13px;
+    color: #e5e5e5;
+    overflow: hidden;
+    margin: 2rem auto;
+    max-width: 700px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    height: 380px; /* Fixed height so it doesn't jump around */
+    display: flex;
+    flex-direction: column;
+  }
+  .mock-header {
+    background: #222;
+    padding: 8px 12px;
+    border-bottom: 1px solid #333;
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .mock-dot { height: 10px; width: 10px; border-radius: 50%; background: #555; }
+  .mock-dot.red { background: #ff5f56; }
+  .mock-dot.yellow { background: #ffbd2e; }
+  .mock-dot.green { background: #27c93f; }
+  .mock-body { 
+    padding: 16px; 
+    line-height: 1.6; 
+    flex-grow: 1;
+    overflow-y: auto;
+  }
+  
+  .line { opacity: 0; display: none; }
+  .line.visible { opacity: 1; display: block; animation: fadeIn 0.2s ease-in; }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .mc-user { color: #88c0d0; margin-bottom: 12px; }
+  .mc-tool { color: #8fbcbb; margin-left: 12px; margin-bottom: 4px; opacity: 0.8; font-size: 12px; }
+  .mc-tool::before { content: "⚙ "; }
+  .mc-agent { 
+    color: #a3be8c; 
+    margin-left: 12px; 
+    margin-bottom: 12px; 
+    border-left: 2px solid #a3be8c; 
+    padding-left: 8px; 
+    margin-top: 12px; 
+  }
+  .mc-accent { color: #d08770; font-weight: bold; }
+  .cursor {
+    display: inline-block;
+    width: 8px;
+    height: 15px;
+    background: #e5e5e5;
+    vertical-align: middle;
+    animation: blink 1s step-end infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+</style>
+</head>
+<body>
+
+<div class="mock-chat">
+  <div class="mock-header">
+    <div class="mock-dot red"></div>
+    <div class="mock-dot yellow"></div>
+    <div class="mock-dot green"></div>
+  </div>
+  <div class="mock-body" id="chat-container">
+    <!-- JS will inject lines here -->
+  </div>
+</div>
+
+<script>
+  const script = [
+    { class: 'mc-user', content: '<strong>User:</strong> <span class="text"></span>', text: 'COLD START. Read memory and orient.', typeSpeed: 40, postDelay: 600 },
+    { class: 'mc-tool', content: 'read_file(/memories/00-routing.md)', postDelay: 800 },
+    { class: 'mc-tool', content: 'run_in_terminal(pwsh tools/qwen-coldstart.ps1)', postDelay: 1800 },
+    { class: 'mc-tool', content: 'run_in_terminal(pwsh tools/latest-revival.ps1 -N 1)', postDelay: 2000 },
+    { class: 'mc-agent', content: '<strong>Agent:</strong> <span class="text"></span>', 
+      text: 'I\'m oriented. According to the latest revival journal <span class="mc-accent">S-20260508-auth-pipeline</span>, yesterday we shipped the token refresh flow but intentionally deferred the SQLite migration script.<br><br>Awaiting direction. Should we start the migration script today?', 
+      typeSpeed: 10, postDelay: 1500 },
+    { class: 'mc-user', content: '<strong>User:</strong> <span class="text"></span>', text: 'Yes, pick up exactly where we left off.', typeSpeed: 40, postDelay: 4000 }
+  ];
+
+  const container = document.getElementById('chat-container');
+
+  async function typeText(element, text, speed) {
+    element.innerHTML += '<span class="cursor"></span>';
+    const cursor = element.querySelector('.cursor');
+    const textSpan = element.querySelector('.text') || element;
+    
+    if (text.includes('<span')) {
+        textSpan.innerHTML = text;
+        await new Promise(r => setTimeout(r, 600));
+    } else {
+        for (let i = 0; i < text.length; i++) {
+          textSpan.innerHTML += text.charAt(i);
+          await new Promise(r => setTimeout(r, speed));
+        }
+    }
+    if (cursor) cursor.remove();
+  }
+
+  async function playSequence() {
+    container.innerHTML = '';
+    for (const step of script) {
+      const div = document.createElement('div');
+      div.className = `line visible ${step.class}`;
+      
+      if (step.text) {
+        div.innerHTML = step.content;
+        container.appendChild(div);
+        await typeText(div, step.text, step.typeSpeed);
+      } else {
+        div.innerHTML = step.content;
+        container.appendChild(div);
+      }
+      
+      container.scrollTop = container.scrollHeight;
+      
+      await new Promise(r => setTimeout(r, step.postDelay));
+    }
+    
+    setTimeout(playSequence, 1000);
+  }
+
+  playSequence();
+</script>
+
+</body>
+</html>

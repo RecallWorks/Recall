@@ -1,0 +1,246 @@
+<!doctype html>
+<!-- @recall.works/site | index.html | v1.6 | 2026-05-09 | update empty-brain copy | prev: v1.5 -->
+<html lang="en">
+<head>
+<link rel="icon" type="image/png" href="assets/recall-icon.png">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Recall™ — durable memory for AI coding agents</title>
+<link rel="stylesheet" href="assets/site.css">
+<meta name="description" content="Durable memory for AI coding agents. An open Agent OS pattern: a brain that survives across sessions, plus tiered file-based memory. Works with GitHub Copilot, Claude, Cursor, Cline, Aider, Continue, LangChain.">
+<link rel="canonical" href="https://recall.works/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="recall.works">
+<meta property="og:title" content="Recall™ — durable memory for AI coding agents">
+<meta property="og:description" content="Durable memory for AI coding agents. An open Agent OS pattern: a brain that survives across sessions, plus tiered file-based memory. Works with GitHub Copilot, Claude, Cursor, Cline, Aider, Continue, LangChain.">
+<meta property="og:url" content="https://recall.works/">
+<meta property="og:image" content="https://recall.works/assets/og-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@mtgtechusa">
+<meta name="twitter:title" content="Recall™ — durable memory for AI coding agents">
+<meta name="twitter:description" content="Durable memory for AI coding agents. An open Agent OS pattern: a brain that survives across sessions, plus tiered file-based memory. Works with GitHub Copilot, Claude, Cursor, Cline, Aider, Continue, LangChain.">
+<meta name="twitter:image" content="https://recall.works/assets/og-card.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "recall.works Agent OS",
+  "description": "Durable memory for AI coding agents. An open Agent OS pattern: brain + tiered file memory + cold-start protocol. Works with GitHub Copilot, Claude, Cursor, Cline, Aider, Continue, LangChain.",
+  "url": "https://recall.works/",
+  "codeRepository": "https://github.com/RecallWorks/Recall",
+  "programmingLanguage": ["Python", "PowerShell", "HTML"],
+  "license": "https://github.com/RecallWorks/Recall/blob/main/agent-os/LICENSE",
+  "author": {
+    "@type": "Person",
+    "name": "Steve Paltridge",
+    "url": "https://github.com/stevepaltridge"
+  },
+  "keywords": "AI agents, agent memory, MCP, Model Context Protocol, GitHub Copilot, Claude, vector database, durable memory, agent OS, LLM tooling"
+}
+</script>
+<style>
+  .mock-chat {
+    background: #111;
+    border-radius: 8px;
+    border: 1px solid #333;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 13px;
+    color: #e5e5e5;
+    overflow: hidden;
+    margin: 0 0 0 auto;
+    width: 100%;
+    max-width: 550px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    height: 300px;
+    display: flex;
+    flex-direction: column;
+  }
+  .mock-header {
+    background: #222;
+    padding: 8px 12px;
+    border-bottom: 1px solid #333;
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .mock-dot { height: 10px; width: 10px; border-radius: 50%; background: #555; }
+  .mock-dot.red { background: #ff5f56; }
+  .mock-dot.yellow { background: #ffbd2e; }
+  .mock-dot.green { background: #27c93f; }
+  .mock-body { padding: 16px; line-height: 1.6; flex-grow: 1; overflow-y: auto; scrollbar-width: none; -ms-overflow-style: none; }
+  .mock-body::-webkit-scrollbar { display: none; }
+  .line { opacity: 0; display: none; }
+  .line.visible { opacity: 1; display: block; animation: fadeIn 0.2s ease-in; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+  .mc-user { color: #88c0d0; margin-bottom: 12px; }
+  .mc-tool { color: #8fbcbb; margin-left: 12px; margin-bottom: 4px; opacity: 0.8; font-size: 12px; }
+  .mc-tool::before { content: "⚙ "; }
+  .mc-agent { color: #a3be8c; margin-left: 12px; margin-bottom: 12px; border-left: 2px solid #a3be8c; padding-left: 8px; margin-top: 12px; }
+  .mc-accent { color: #d08770; font-weight: bold; }
+  .cursor { display: inline-block; width: 8px; height: 15px; background: #e5e5e5; vertical-align: middle; animation: blink 1s step-end infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+</style>
+</head>
+<body>
+
+<header class="topnav">
+  <div class="topnav-inner">
+    <a class="logo" href="index.html">Recall<sup>™</sup></a>
+    <nav>
+      <a href="index.html" class="active">Home</a>
+      <a href="whitepaper.html">Whitepaper</a>
+      <a href="pillars.html">Pillars</a>
+      <a href="architecture.html">Architecture</a>
+      <a href="brain.html">Brain</a>
+      <a href="hardware.html">Hardware</a>
+      <a href="comparison.html">Compare</a>
+      <a href="quickstart.html">Quickstart</a>
+      <a href="https://github.com/RecallWorks/Recall">GitHub &rarr;</a>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap">
+
+<section class="hero" style="display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; max-width: 1200px; margin: 0 auto; padding: 4rem 1rem;">
+  <div class="hero-content">
+    <div class="brand-xl">Recall<sup>™</sup></div>
+    <p class="tagline">Durable memory, audit, and continuity for AI coding agents.</p>
+    <p class="sub">An open reference architecture. Free to read, free to use, free to adapt. Six pillars, a small set of conventions, and ~600 lines of glue that turn any AI coding agent into a contractor with a project log instead of a goldfish.</p>
+    <div class="cta-row" style="margin-top:2rem;">
+      <a href="quickstart.html" class="btn">Get Started &rarr;</a>
+    </div>
+  </div>
+  <div class="hero-visual">
+    <div class="mock-chat">
+      <div class="mock-header">
+        <div class="mock-dot red"></div>
+        <div class="mock-dot yellow"></div>
+        <div class="mock-dot green"></div>
+      </div>
+      <div class="mock-body" id="chat-container"></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Start here</h2>
+  <div class="cards">
+    <a class="card" href="whitepaper.html">
+      <h3>Whitepaper &rarr;</h3>
+      <p>The full one-page treatment. Problem, six pillars, architecture diagrams, hardware reality, comparison to existing tools, cold-start protocol, where this matters.</p>
+    </a>
+    <a class="card" href="comparison.html">
+      <h3>Compare &rarr;</h3>
+      <p>What Agent OS replaces in the default workflow, and how it sits next to Cursor, Cline, Aider, Continue.dev, LangChain, AutoGen, and the rest.</p>
+    </a>
+    <a class="card" href="pillars.html">
+      <h3>Six pillars &rarr;</h3>
+      <p>Memory · Local compute · Vault · Guardrails · Brain backup · Continuity. Each one composable. None of them load-bearing alone.</p>
+    </a>
+    <a class="card" href="architecture.html">
+      <h3>Architecture &rarr;</h3>
+      <p>Hot / warm / cold context tiers, the networked-brain pattern, and how a real session runs from trigger to overnight backup.</p>
+    </a>
+    <a class="card" href="brain.html">
+      <h3>The brain &rarr;</h3>
+      <p>A vector database ready to scale to tens of thousands of chunks of your own knowledge. What it is, how to fill it, how to talk to it, and how it's different from <code>/memories/</code>.</p>
+    </a>
+    <a class="card" href="hardware.html">
+      <h3>Hardware reality &rarr;</h3>
+      <p>What you need at each profile — workstation, mid-range laptop, integrated graphics, phone. Honest about what the GPU buys you.</p>
+    </a>
+    <a class="card" href="quickstart.html">
+      <h3>Quickstart &rarr;</h3>
+      <p>Three commands sketch the cold-start protocol. Reference implementation links + scheduled-task layout.</p>
+    </a>
+  </div>
+</section>
+
+<section>
+  <h2>What it solves</h2>
+  <p>Modern AI coding agents are stateless. Every conversation starts cold. Memory is what the host platform decides to keep. Costs are unbounded. Audit is whatever the chat transcript happens to retain. Multi-day campaigns degrade into "we already discussed this — read the scrollback" loops, until eventually the scrollback gets compacted by an opaque summarizer and detail vanishes.</p>
+  <p><strong>Agent OS treats the agent like a contractor who clocks in every day:</strong> they don't remember yesterday's work from their own head, they read the project log. The log lives on disk, in a vector brain, and in immutable cloud storage. The agent's <em>job</em> is to keep that log honest and to read it before acting.</p>
+</section>
+
+<section>
+  <h2>By the numbers</h2>
+  <div class="stats">
+    <div class="stat"><div class="num">&lt;$1</div><div class="lbl">Azure Blob storage</div></div>
+    <div class="stat"><div class="num">7 yr</div><div class="lbl">WORM retention</div></div>
+    <div class="stat"><div class="num">~3 KB</div><div class="lbl">Cold-start brief</div></div>
+    <div class="stat"><div class="num">3</div><div class="lbl">Independent fail-safes</div></div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="meta">
+    <div><strong>Reference implementation:</strong> VS Code + GitHub Copilot Chat + an object-storage backend + a local open-weights model on a consumer GPU. Not bound to any of these — swap freely.</div>
+    <div><strong>License posture:</strong> open pattern. The whitepaper is shared freely; the reference implementation is permissively licensed (MIT). Attribution to <span style="color:var(--accent)">Recall™</span> appreciated.</div>
+    <div><strong>Recall™</strong> trademark application pending. Use the ™ designation in any republication; switch to ® once the registration is granted.</div>
+    <div><strong>Site generated:</strong> 2026-05-07.</div>
+  </div>
+</footer>
+
+</div>
+<script>
+    const mockScript = [
+      { class: 'mc-user', content: '<strong>User:</strong> <span class="text"></span>', text: 'COLD START. Read memory and orient.', typeSpeed: 40, postDelay: 600 },
+      { class: 'mc-tool', content: 'read_file(/memories/00-routing.md)', postDelay: 800 },
+      { class: 'mc-tool', content: 'run_in_terminal(pwsh tools/qwen-coldstart.ps1)', postDelay: 1800 },
+      { class: 'mc-tool', content: 'run_in_terminal(pwsh tools/latest-revival.ps1)', postDelay: 2000 },
+      { class: 'mc-agent', content: '<strong>Agent:</strong> <span class="text"></span>', 
+        text: 'I\'m oriented. According to the latest revival journal <span class="mc-accent">S-20260508-auth-pipeline</span>, yesterday we shipped the token refresh flow but intentionally deferred the SQLite migration script.<br><br>Should we start the migration script today?', 
+        typeSpeed: 10, postDelay: 1500 },
+      { class: 'mc-user', content: '<strong>User:</strong> <span class="text"></span>', text: 'Yes, pick up exactly where we left off.', typeSpeed: 40, postDelay: 4000 }
+    ];
+  
+    const mockContainer = document.getElementById('chat-container');
+    async function typeText(element, text, speed) {
+      element.innerHTML += '<span class="cursor"></span>';
+      const cursor = element.querySelector('.cursor');
+      const textSpan = element.querySelector('.text') || element;
+      
+      if (text.includes('<span')) {
+          textSpan.innerHTML = text;
+            if (mockContainer) mockContainer.scrollTop = mockContainer.scrollHeight;
+            await new Promise(r => setTimeout(r, 600));
+        } else {
+            for (let i = 0; i < text.length; i++) {
+              textSpan.innerHTML += text.charAt(i);
+              if (mockContainer) mockContainer.scrollTop = mockContainer.scrollHeight;
+              await new Promise(r => setTimeout(r, speed));
+            }
+        }
+        if (cursor) cursor.remove();
+        if (mockContainer) mockContainer.scrollTop = mockContainer.scrollHeight;
+      }
+    
+      async function playSequence() {
+        if (!mockContainer) return;
+        mockContainer.innerHTML = '';
+        for (const step of mockScript) {
+          const div = document.createElement('div');
+          div.className = `line visible ${step.class}`;
+          
+          if (step.text) {
+            div.innerHTML = step.content;
+            mockContainer.appendChild(div);
+            mockContainer.scrollTop = mockContainer.scrollHeight;
+            await typeText(div, step.text, step.typeSpeed);
+          } else {
+            div.innerHTML = step.content;
+            mockContainer.appendChild(div);
+            mockContainer.scrollTop = mockContainer.scrollHeight;
+          }
+          await new Promise(r => setTimeout(r, step.postDelay));
+        }
+        setTimeout(playSequence, 1000);
+      }
+    playSequence();
+  </script>
+</body>
+</html>
+

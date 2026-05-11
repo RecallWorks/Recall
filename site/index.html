@@ -1,7 +1,8 @@
 <!doctype html>
-<!-- @recall.works/site | index.html | v1.4 | 2026-05-09 | reorder start here cards | prev: v1.3 -->
+<!-- @recall.works/site | index.html | v1.5 | 2026-05-10 | VC-ready: how-it-works, social proof, market, competitive table, install box | prev: v1.4 -->
 <html lang="en">
 <head>
+<link rel="icon" type="image/png" href="assets/recall-icon.png">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Recall™ — durable memory for AI coding agents</title>
@@ -28,9 +29,9 @@
   "name": "recall.works Agent OS",
   "description": "Durable memory for AI coding agents. An open Agent OS pattern: brain + tiered file memory + cold-start protocol. Works with GitHub Copilot, Claude, Cursor, Cline, Aider, Continue, LangChain.",
   "url": "https://recall.works/",
-  "codeRepository": "https://github.com/stevepaltridge/recall.works",
+  "codeRepository": "https://github.com/RecallWorks/Recall",
   "programmingLanguage": ["Python", "PowerShell", "HTML"],
-  "license": "https://github.com/stevepaltridge/recall.works/blob/main/agent-os/LICENSE",
+  "license": "https://github.com/RecallWorks/Recall/blob/main/agent-os/LICENSE",
   "author": {
     "@type": "Person",
     "name": "Steve Paltridge",
@@ -54,7 +55,7 @@
       <a href="hardware.html">Hardware</a>
       <a href="comparison.html">Compare</a>
       <a href="quickstart.html">Quickstart</a>
-      <a href="https://github.com/stevepaltridge/recall.works">GitHub &rarr;</a>
+      <a href="https://github.com/RecallWorks/Recall">GitHub &rarr;</a>
     </nav>
   </div>
 </header>
@@ -63,26 +64,93 @@
 
 <section class="hero">
   <div class="brand-xl">Recall<sup>™</sup></div>
-  <p class="tagline">Durable memory, audit, and continuity for AI coding agents.</p>
-  <p class="sub">An open reference architecture. Free to read, free to use, free to adapt. Six pillars, a small set of conventions, and ~600 lines of glue that turn any AI coding agent into a contractor with a project log instead of a goldfish.</p>
-  <div class="cta-row">
-    <a class="cta primary" href="whitepaper.html">Read the whitepaper &rarr;</a>
-    <a class="cta ghost" href="quickstart.html">Quickstart</a>
-    <a class="cta ghost" href="https://github.com/stevepaltridge/recall.works">GitHub</a>
+  <p class="tagline">Give your AI agent a memory. One command. Zero config.</p>
+  <p class="sub">Every AI coding conversation starts cold. You re-explain the codebase, the conventions, the decisions — every time. Recall fixes that. An MCP memory server that works with Claude, Copilot, Cursor, and any MCP client. Local-first, MIT licensed, free forever.</p>
+  <div class="install-box">
+    <span class="label">Install</span>
+    <code>pip install ai-recallworks</code>
   </div>
+  <div class="cta-row">
+    <a class="cta primary" href="quickstart.html">Quickstart &rarr;</a>
+    <a class="cta ghost" href="https://github.com/RecallWorks/Recall">GitHub</a>
+    <a class="cta ghost" href="whitepaper.html">Read the whitepaper</a>
+  </div>
+  <div class="badges">
+    <a class="badge" href="https://pypi.org/project/ai-recallworks/"><span class="dot"></span> PyPI v0.5.2</a>
+    <a class="badge" href="https://registry.modelcontextprotocol.io/"><span class="dot"></span> Official MCP Registry</a>
+    <a class="badge" href="https://glama.ai/mcp/servers/RecallWorks/Recall"><span class="dot"></span> Glama</a>
+    <a class="badge" href="https://github.com/RecallWorks/Recall"><span class="dot"></span> MIT Licensed</a>
+  </div>
+</section>
+
+<section>
+  <h2>How it works</h2>
+  <div class="steps">
+    <div class="step">
+      <h3>Install</h3>
+      <p>One pip install. Add 3 lines to your MCP config. No API key. No account. No Docker required.</p>
+      <p style="margin:0"><code>pip install ai-recallworks</code></p>
+    </div>
+    <div class="step">
+      <h3>Remember</h3>
+      <p>Your agent calls <code>remember()</code> as it works. Decisions, patterns, conventions, gotchas — all indexed locally with vector search.</p>
+    </div>
+    <div class="step">
+      <h3>Recall</h3>
+      <p>Next session, the agent calls <code>recall()</code> and gets back semantically relevant context. No re-explaining. No scrollback. No cold start.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>The market</h2>
+  <div class="market-stats">
+    <div class="market-stat">
+      <div class="big">40M+</div>
+      <div class="note">developers using AI coding tools</div>
+      <div class="src">GitHub, Google, JetBrains surveys 2025</div>
+    </div>
+    <div class="market-stat">
+      <div class="big">100%</div>
+      <div class="note">start every chat cold</div>
+      <div class="src">No agent ships with persistent memory</div>
+    </div>
+    <div class="market-stat">
+      <div class="big">$0</div>
+      <div class="note">switching cost</div>
+      <div class="src">MCP config change — keep your agent</div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>vs. funded competitors</h2>
+  <table class="comp-table">
+    <thead>
+      <tr>
+        <th></th>
+        <th>Mem0 <span style="font-weight:400;text-transform:none;letter-spacing:0">(YC, cloud SaaS)</span></th>
+        <th>Letta <span style="font-weight:400;text-transform:none;letter-spacing:0">(Berkeley, agent platform)</span></th>
+        <th class="recall-col">Recall</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>What it is</td><td>Cloud memory API</td><td>A whole agent</td><td class="recall-col">MCP memory server</td></tr>
+      <tr><td>Where data lives</td><td class="no">Their servers</td><td>Their app</td><td class="recall-col yes">Your disk</td></tr>
+      <tr><td>Works with</td><td>Custom apps via SDK</td><td>Letta only</td><td class="recall-col yes">Any MCP client</td></tr>
+      <tr><td>Setup</td><td>API key + code changes</td><td>Switch agents entirely</td><td class="recall-col yes">1 config line</td></tr>
+      <tr><td>Cost</td><td>Paid SaaS</td><td>Free + paid tiers</td><td class="recall-col yes">Free forever (MIT)</td></tr>
+      <tr><td>MCP-native</td><td class="no">No</td><td class="no">No</td><td class="recall-col yes">Yes</td></tr>
+      <tr><td>Multi-agent coord</td><td class="no">No</td><td class="no">No</td><td class="recall-col yes">6 primitives</td></tr>
+      <tr><td>Offline / air-gap</td><td class="no">No</td><td class="no">No</td><td class="recall-col yes">Yes</td></tr>
+    </tbody>
+  </table>
+  <p style="font-size:13px;color:var(--text-faint);margin-top:14px">Mem0 and Letta ask you to change how you work. Recall gives memory to the tools you already use. <a href="comparison.html">Full comparison &rarr;</a></p>
 </section>
 
 <section>
   <h2>Start here</h2>
   <div class="cards">
-    <a class="card" href="pillars.html">
-      <h3>Six pillars &rarr;</h3>
-      <p>Memory · Local compute · Vault · Guardrails · Brain backup · Continuity. Each one composable. None of them load-bearing alone.</p>
-    </a>
-    <a class="card" href="architecture.html">
-      <h3>Architecture &rarr;</h3>
-      <p>Hot / warm / cold context tiers, the networked-brain pattern, and how a real session runs from trigger to overnight backup.</p>
-    </a>
     <a class="card" href="whitepaper.html">
       <h3>Whitepaper &rarr;</h3>
       <p>The full one-page treatment. Problem, six pillars, architecture diagrams, hardware reality, comparison to existing tools, cold-start protocol, where this matters.</p>
@@ -91,13 +159,21 @@
       <h3>Compare &rarr;</h3>
       <p>What Agent OS replaces in the default workflow, and how it sits next to Cursor, Cline, Aider, Continue.dev, LangChain, AutoGen, and the rest.</p>
     </a>
-    <a class="card" href="hardware.html">
-      <h3>Hardware reality &rarr;</h3>
-      <p>What you need at each profile — workstation, mid-range laptop, integrated graphics, phone. Honest about what the GPU buys you.</p>
+    <a class="card" href="pillars.html">
+      <h3>Six pillars &rarr;</h3>
+      <p>Memory · Local compute · Vault · Guardrails · Brain backup · Continuity. Each one composable. None of them load-bearing alone.</p>
+    </a>
+    <a class="card" href="architecture.html">
+      <h3>Architecture &rarr;</h3>
+      <p>Hot / warm / cold context tiers, the networked-brain pattern, and how a real session runs from trigger to overnight backup.</p>
     </a>
     <a class="card" href="brain.html">
       <h3>The brain &rarr;</h3>
-      <p>Tens of thousands of chunks of fuzzy-searchable knowledge. What it is, what's in it, how to talk to it, and how it's different from <code>/memories/</code>.</p>
+      <p>A vector database ready to scale to tens of thousands of chunks of your own knowledge. What it is, how to fill it, how to talk to it, and how it's different from <code>/memories/</code>.</p>
+    </a>
+    <a class="card" href="hardware.html">
+      <h3>Hardware reality &rarr;</h3>
+      <p>What you need at each profile — workstation, mid-range laptop, integrated graphics, phone. Honest about what the GPU buys you.</p>
     </a>
     <a class="card" href="quickstart.html">
       <h3>Quickstart &rarr;</h3>
@@ -109,16 +185,47 @@
 <section>
   <h2>What it solves</h2>
   <p>Modern AI coding agents are stateless. Every conversation starts cold. Memory is what the host platform decides to keep. Costs are unbounded. Audit is whatever the chat transcript happens to retain. Multi-day campaigns degrade into "we already discussed this — read the scrollback" loops, until eventually the scrollback gets compacted by an opaque summarizer and detail vanishes.</p>
-  <p><strong>Agent OS treats the agent like a contractor who clocks in every day:</strong> they don't remember yesterday's work from their own head, they read the project log. The log lives on disk, in a vector brain, and in immutable cloud storage. The agent's <em>job</em> is to keep that log honest and to read it before acting.</p>
+  <p><strong>Recall treats the agent like a contractor who clocks in every day:</strong> they don't remember yesterday's work from their own head, they read the project log. The log lives on disk, in a vector brain, and in immutable cloud storage. The agent's <em>job</em> is to keep that log honest and to read it before acting.</p>
+</section>
+
+<section>
+  <h2>Open source + business model</h2>
+  <div class="compare">
+    <div class="col">
+      <h4>Free forever (MIT)</h4>
+      <ul>
+        <li>Full MCP memory server</li>
+        <li>All 22 tools including multi-agent coordination</li>
+        <li>Local vector search (ChromaDB)</li>
+        <li>Offline / air-gapped operation</li>
+        <li>BYO embedder + LLM</li>
+        <li>Append-only artifacts on disk</li>
+        <li>Single-user, single-machine</li>
+      </ul>
+    </div>
+    <div class="col after">
+      <h4>Recall Cloud (coming)</h4>
+      <ul>
+        <li>Hosted brain with cross-machine sync</li>
+        <li>Team namespaces — shared memory across developers</li>
+        <li>Backup + retention policies</li>
+        <li>Admin dashboard + audit logs</li>
+        <li>SSO / SAML for enterprise</li>
+        <li>Priority support + SLA</li>
+        <li>From $99/mo per team</li>
+      </ul>
+    </div>
+  </div>
+  <p style="font-size:13px;color:var(--text-faint);margin-top:14px">The free tier is genuinely great, forever. The paid tier sells convenience and team features — not unlocked functionality.</p>
 </section>
 
 <section>
   <h2>By the numbers</h2>
   <div class="stats">
-    <div class="stat"><div class="num">&lt;$1</div><div class="lbl">Azure Blob storage</div></div>
-    <div class="stat"><div class="num">7 yr</div><div class="lbl">WORM retention</div></div>
-    <div class="stat"><div class="num">~3 KB</div><div class="lbl">Cold-start brief</div></div>
-    <div class="stat"><div class="num">3</div><div class="lbl">Independent fail-safes</div></div>
+    <div class="stat"><div class="num">22</div><div class="lbl">MCP tools</div></div>
+    <div class="stat"><div class="num">1</div><div class="lbl">pip install</div></div>
+    <div class="stat"><div class="num">0</div><div class="lbl">API keys required</div></div>
+    <div class="stat"><div class="num">MIT</div><div class="lbl">License (core)</div></div>
   </div>
 </section>
 

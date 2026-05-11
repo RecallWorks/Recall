@@ -1,7 +1,8 @@
 <!doctype html>
-<!-- @recall.works/site | comparison.html | v1.6 | 2026-05-08 | added social links to footer (X/LinkedIn/YouTube @MortgageTechAI) | prev: v1.5 -->
+<!-- @recall.works/site | comparison.html | v1.4 | 2026-05-10 | added mem0/Letta/Zep dedicated-memory section + competitive table | prev: v1.3 -->
 <html lang="en">
 <head>
+<link rel="icon" type="image/png" href="assets/recall-icon.png">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Compare · Recall™ Agent OS</title>
@@ -17,7 +18,7 @@
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:site" content="@MtgtechUSA">
+<meta name="twitter:site" content="@mtgtechusa">
 <meta name="twitter:title" content="Compare · Recall™ Agent OS">
 <meta name="twitter:description" content="How recall.works sits next to GitHub Copilot Chat memory, Cursor .cursorrules, Cline, Aider, Continue.dev, LangChain memory, AutoGen / CrewAI. Same gap, different angle.">
 <meta name="twitter:image" content="https://recall.works/assets/og-card.png">
@@ -114,6 +115,56 @@
 </section>
 
 <section>
+  <h2>vs. dedicated memory services</h2>
+  <p>Three VC-funded startups are tackling agent memory head-on. Here's how Recall differs.</p>
+
+  <table class="comp-table">
+    <thead>
+      <tr>
+        <th></th>
+        <th>Mem0 <span style="font-weight:400;text-transform:none;letter-spacing:0">(YC backed)</span></th>
+        <th>Letta <span style="font-weight:400;text-transform:none;letter-spacing:0">(MemGPT / Berkeley)</span></th>
+        <th>Zep</th>
+        <th class="recall-col">Recall</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>What it is</td><td>Cloud memory API</td><td>Full agent platform</td><td>Cloud memory API</td><td class="recall-col">MCP memory server</td></tr>
+      <tr><td>Target user</td><td>App developers building AI products</td><td>Developers who switch agents</td><td>App developers</td><td class="recall-col">Developers <em>using</em> AI coding agents</td></tr>
+      <tr><td>Where data lives</td><td class="no">Their servers</td><td>Their app</td><td class="no">Their servers</td><td class="recall-col yes">Your disk (~/.recall/)</td></tr>
+      <tr><td>Integration</td><td>pip install + API key + code</td><td>npm install + adopt their CLI</td><td>pip install + API key + code</td><td class="recall-col yes">3-line MCP config</td></tr>
+      <tr><td>Works with</td><td>Custom apps via SDK</td><td>Letta agent only</td><td>Custom apps via SDK</td><td class="recall-col yes">Claude, Copilot, Cursor, any MCP client</td></tr>
+      <tr><td>MCP-native</td><td class="no">No (SDK wrapper)</td><td class="no">No</td><td class="no">No (SDK wrapper)</td><td class="recall-col yes">Built on MCP</td></tr>
+      <tr><td>Cost</td><td>Paid SaaS (per-token)</td><td>Free tier + paid</td><td>Paid SaaS</td><td class="recall-col yes">Free forever (MIT)</td></tr>
+      <tr><td>Network required</td><td class="no">Always (API calls)</td><td class="no">Their service</td><td class="no">Always (API calls)</td><td class="recall-col yes">Never (fully offline)</td></tr>
+      <tr><td>Multi-agent coordination</td><td class="no">No</td><td class="no">No</td><td class="no">No</td><td class="recall-col yes">claim / release / handoff / who_has / pulse</td></tr>
+      <tr><td>Enterprise certs</td><td class="yes">SOC 2, HIPAA</td><td>Research-grade</td><td class="yes">SOC 2</td><td>Not yet</td></tr>
+      <tr><td>Open source</td><td>Partial (OSS + cloud)</td><td>Yes (MemGPT core)</td><td>Partial</td><td class="recall-col yes">Full core MIT</td></tr>
+    </tbody>
+  </table>
+
+  <div style="margin-top:24px">
+    <h3 style="font-size:14px;color:var(--text)">Where they beat us (honest)</h3>
+    <ul style="color:var(--text-dim);font-size:14px;line-height:1.8;padding-left:22px">
+      <li><strong>Mem0</strong> — More mature, enterprise certifications (SOC 2, HIPAA), bigger community (90K+ developers claimed), managed hosting with governance. If you're building a healthcare chatbot that needs HIPAA compliance, Mem0 is the right choice today.</li>
+      <li><strong>Letta</strong> — Research pedigree (Berkeley, MemGPT paper), novel sleep-time compute (agents reason during idle), git-based context versioning. If you want a research-grade agent pushing boundaries, Letta is more ambitious.</li>
+      <li><strong>Zep</strong> — Polished cloud API with knowledge graphs and temporal reasoning. If you want managed infrastructure and aren't price-sensitive, Zep is well-engineered.</li>
+    </ul>
+
+    <h3 style="font-size:14px;color:var(--accent);margin-top:22px">Where Recall wins</h3>
+    <ul style="color:var(--text-dim);font-size:14px;line-height:1.8;padding-left:22px">
+      <li><strong>Zero switching cost</strong> — Nobody changes their editor, agent, or workflow. Mem0 needs code. Letta needs you to abandon Claude Code. Recall adds 3 lines to a config file.</li>
+      <li><strong>MCP-native</strong> — The only memory solution that works natively with the MCP ecosystem. Not a wrapper, not an SDK — a first-class MCP server.</li>
+      <li><strong>Local-first</strong> — Your memories never leave your machine. No API key, no account, no network calls. Air-gappable.</li>
+      <li><strong>Multi-agent coordination</strong> — Six primitives (claim, release, handoff, who_has, claims, pulse_others) that no competitor offers. Advisory locks prevent agents from clobbering each other's work.</li>
+      <li><strong>Zero infrastructure</strong> — No cloud account, no database server, no Docker required. Flat files + embedded vector search.</li>
+    </ul>
+  </div>
+
+  <p style="font-size:13px;color:var(--text-faint);margin-top:22px"><strong>The one-line pitch:</strong> Mem0 and Letta ask you to change how you work. Recall gives memory to the tools you already use.</p>
+</section>
+
+<section>
   <h2>A note on which AI you're driving</h2>
   <p>The reference implementation was field-tested with <strong>Claude (Sonnet / Opus class) running inside GitHub Copilot Chat in VS Code</strong>. That combination shaped some of the conventions:</p>
   <ul style="color:var(--text-dim);font-size:14px;line-height:1.8;padding-left:22px">
@@ -129,11 +180,6 @@
   <div class="meta">
     <div><strong>Next:</strong> <a href="quickstart.html">Quickstart &rarr;</a></div>
     <div><strong>Or:</strong> <a href="https://github.com/RecallWorks/Recall">GitHub repo</a></div>
-    <div class="social"><strong>Follow:</strong>
-      <a href="https://x.com/MtgtechUSA">X / Twitter</a> &middot;
-      <a href="https://linkedin.com/company/mortgagetech">LinkedIn</a> &middot;
-      <a href="https://youtube.com/@MortgageTechAI">YouTube</a>
-    </div>
   </div>
 </footer>
 
