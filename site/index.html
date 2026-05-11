@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- @recall.works/site | index.html | v1.6 | 2026-05-08 | YouTube handle finalized to @MortgageTechAI | prev: v1.5 -->
+<!-- @recall.works/site | index.html | v1.4 | 2026-05-09 | reorder start here cards | prev: v1.3 -->
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -17,7 +17,7 @@
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:site" content="@MtgtechUSA">
+<meta name="twitter:site" content="@mtgtechusa">
 <meta name="twitter:title" content="Recall™ — durable memory for AI coding agents">
 <meta name="twitter:description" content="Durable memory for AI coding agents. An open Agent OS pattern: a brain that survives across sessions, plus tiered file-based memory. Works with GitHub Copilot, Claude, Cursor, Cline, Aider, Continue, LangChain.">
 <meta name="twitter:image" content="https://recall.works/assets/og-card.png">
@@ -28,20 +28,14 @@
   "name": "recall.works Agent OS",
   "description": "Durable memory for AI coding agents. An open Agent OS pattern: brain + tiered file memory + cold-start protocol. Works with GitHub Copilot, Claude, Cursor, Cline, Aider, Continue, LangChain.",
   "url": "https://recall.works/",
-  "codeRepository": "https://github.com/RecallWorks/Recall",
+  "codeRepository": "https://github.com/stevepaltridge/recall.works",
   "programmingLanguage": ["Python", "PowerShell", "HTML"],
-  "license": "https://github.com/RecallWorks/Recall/blob/main/agent-os/LICENSE",
+  "license": "https://github.com/stevepaltridge/recall.works/blob/main/agent-os/LICENSE",
   "author": {
     "@type": "Person",
     "name": "Steve Paltridge",
     "url": "https://github.com/stevepaltridge"
   },
-  "sameAs": [
-    "https://x.com/MtgtechUSA",
-    "https://linkedin.com/company/mortgagetech",
-    "https://youtube.com/@MortgageTechAI",
-    "https://github.com/RecallWorks/Recall"
-  ],
   "keywords": "AI agents, agent memory, MCP, Model Context Protocol, GitHub Copilot, Claude, vector database, durable memory, agent OS, LLM tooling"
 }
 </script>
@@ -60,7 +54,7 @@
       <a href="hardware.html">Hardware</a>
       <a href="comparison.html">Compare</a>
       <a href="quickstart.html">Quickstart</a>
-      <a href="https://github.com/RecallWorks/Recall">GitHub &rarr;</a>
+      <a href="https://github.com/stevepaltridge/recall.works">GitHub &rarr;</a>
     </nav>
   </div>
 </header>
@@ -74,17 +68,13 @@
   <div class="cta-row">
     <a class="cta primary" href="whitepaper.html">Read the whitepaper &rarr;</a>
     <a class="cta ghost" href="quickstart.html">Quickstart</a>
-    <a class="cta ghost" href="https://github.com/RecallWorks/Recall">GitHub</a>
+    <a class="cta ghost" href="https://github.com/stevepaltridge/recall.works">GitHub</a>
   </div>
 </section>
 
 <section>
   <h2>Start here</h2>
   <div class="cards">
-    <a class="card" href="whitepaper.html">
-      <h3>Whitepaper &rarr;</h3>
-      <p>The full one-page treatment. Problem, six pillars, architecture diagrams, hardware reality, comparison to existing tools, cold-start protocol, where this matters.</p>
-    </a>
     <a class="card" href="pillars.html">
       <h3>Six pillars &rarr;</h3>
       <p>Memory · Local compute · Vault · Guardrails · Brain backup · Continuity. Each one composable. None of them load-bearing alone.</p>
@@ -93,17 +83,21 @@
       <h3>Architecture &rarr;</h3>
       <p>Hot / warm / cold context tiers, the networked-brain pattern, and how a real session runs from trigger to overnight backup.</p>
     </a>
-    <a class="card" href="brain.html">
-      <h3>The brain &rarr;</h3>
-      <p>Tens of thousands of chunks of fuzzy-searchable knowledge. What it is, what's in it, how to talk to it, and how it's different from <code>/memories/</code>.</p>
+    <a class="card" href="whitepaper.html">
+      <h3>Whitepaper &rarr;</h3>
+      <p>The full one-page treatment. Problem, six pillars, architecture diagrams, hardware reality, comparison to existing tools, cold-start protocol, where this matters.</p>
+    </a>
+    <a class="card" href="comparison.html">
+      <h3>Compare &rarr;</h3>
+      <p>What Agent OS replaces in the default workflow, and how it sits next to Cursor, Cline, Aider, Continue.dev, LangChain, AutoGen, and the rest.</p>
     </a>
     <a class="card" href="hardware.html">
       <h3>Hardware reality &rarr;</h3>
       <p>What you need at each profile — workstation, mid-range laptop, integrated graphics, phone. Honest about what the GPU buys you.</p>
     </a>
-    <a class="card" href="comparison.html">
-      <h3>Compare &rarr;</h3>
-      <p>What Agent OS replaces in the default workflow, and how it sits next to Cursor, Cline, Aider, Continue.dev, LangChain, AutoGen, and the rest.</p>
+    <a class="card" href="brain.html">
+      <h3>The brain &rarr;</h3>
+      <p>Tens of thousands of chunks of fuzzy-searchable knowledge. What it is, what's in it, how to talk to it, and how it's different from <code>/memories/</code>.</p>
     </a>
     <a class="card" href="quickstart.html">
       <h3>Quickstart &rarr;</h3>
@@ -134,11 +128,6 @@
     <div><strong>License posture:</strong> open pattern. The whitepaper is shared freely; the reference implementation is permissively licensed (MIT). Attribution to <span style="color:var(--accent)">Recall™</span> appreciated.</div>
     <div><strong>Recall™</strong> trademark application pending. Use the ™ designation in any republication; switch to ® once the registration is granted.</div>
     <div><strong>Site generated:</strong> 2026-05-07.</div>
-    <div class="social"><strong>Follow:</strong>
-      <a href="https://x.com/MtgtechUSA">X / Twitter</a> &middot;
-      <a href="https://linkedin.com/company/mortgagetech">LinkedIn</a> &middot;
-      <a href="https://youtube.com/@MortgageTechAI">YouTube</a>
-    </div>
   </div>
 </footer>
 
